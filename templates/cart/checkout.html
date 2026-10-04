@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-credit-card-2-front text-primary me-2"></i> Secure Checkout</h3>
+
+    <form action="{{ url_for('cart.place_order') }}" method="POST">
+        <div class="row g-4">
+            <!-- Shipping & Payment Form -->
+            <div class="col-lg-7">
+                <!-- Shipping Address Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> Shipping Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Full Name *</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Email Address *</label>
+                            <input type="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Phone Number *</label>
+                            <input type="tel" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+1 555-019-2834" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">City *</label>
+                            <input type="text" name="city" class="form-control" placeholder="San Francisco" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Shipping Address *</label>
+                            <textarea name="shipping_address" class="form-control" rows="2" placeholder="123 Tech Street, Suite 400" required>{{ current_user.address or '' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Zip / Postal Code *</label>
+                            <input type="text" name="zip_code" class="form-control" placeholder="94107" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Selection Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-wallet2 text-primary me-2"></i> Payment Method</h5>
+                    <div class="vstack gap-3">
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="card" value="Credit/Debit Card" checked>
+                                <label class="form-check-label fw-semibold" for="card">Credit or Debit Card</label>
+                            </div>
+                            <div>
+                                <i class="bi bi-credit-card-fill fs-4 text-primary"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="paypal" value="PayPal">
+                                <label class="form-check-label fw-semibold" for="paypal">PayPal Express</label>
+                            </div>
+                            <div>
+                                <i class="bi bi-paypal fs-4 text-info"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="cod" value="Cash on Delivery">
+                                <label class="form-check-label fw-semibold" for="cod">Cash on Delivery (COD)</label>
+                            </div>
+                            <div>
+                                <i class="bi bi-cash-stack fs-4 text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items Summary -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3">Order Items ({{ cart_items|length }})</h5>
+
+                    <div class="list-group list-group-flush mb-3">
+                        {% for item in cart_items %}
+                        <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ item.product.thumbnail }}" alt="{{ item.product.title }}" class="rounded" style="width: 45px; height: 45px; object-fit: contain;">
+                                <div>
+                                    <div class="small fw-bold text-truncate" style="max-width: 180px;">{{ item.product.title }}</div>
+                                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ "%.2f"|format(item.product.price) }}</small>
+                                </div>
+                            </div>
+                            <span class="fw-bold small">${{ "%.2f"|format(item.subtotal) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span>${{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tax (8%)</span>
+                        <span>${{ "%.2f"|format(tax) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Shipping</span>
+                        <span class="text-success">{% if shipping == 0.0 %}FREE{% else %}${{ "%.2f"|format(shipping) }}{% endif %}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Total Pay</span>
+                        <span class="fw-extrabold fs-4 text-primary">${{ "%.2f"|format(grand_total) }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6">
+                        <i class="bi bi-lock-fill me-1"></i> Place Order Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

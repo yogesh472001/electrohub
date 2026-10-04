@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Profile Navigation Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3">
+                <div class="text-center p-3">
+                    <div class="fs-1 text-primary mb-2"><i class="bi bi-person-circle"></i></div>
+                    <h5 class="fw-bold mb-0">{{ current_user.full_name }}</h5>
+                    <small class="text-muted">{{ current_user.email }}</small>
+                </div>
+                <hr>
+                <div class="nav flex-column nav-pills">
+                    <a href="{{ url_for('user.profile') }}" class="nav-link active rounded-3 mb-1"><i class="bi bi-person me-2"></i> Account Details</a>
+                    <a href="{{ url_for('user.orders') }}" class="nav-link text-dark rounded-3 mb-1"><i class="bi bi-box-seam me-2"></i> Order History</a>
+                    <a href="{{ url_for('shop.wishlist') }}" class="nav-link text-dark rounded-3 mb-1"><i class="bi bi-heart me-2"></i> Saved Wishlist</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings Form -->
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <h4 class="fw-bold mb-4"><i class="bi bi-gear-fill text-primary me-2"></i> Profile & Shipping Settings</h4>
+
+                <form action="{{ url_for('user.profile') }}" method="POST">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address (Read-Only)</label>
+                            <input type="email" class="form-control bg-light" value="{{ current_user.email }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+1 555-019-2834">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Account Role</label>
+                            <input type="text" class="form-control bg-light text-uppercase fw-bold text-primary" value="{{ current_user.role }}" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Default Shipping Address</label>
+                            <textarea name="address" class="form-control" rows="3">{{ current_user.address or '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold border-top pt-4 mb-3">Change Password (Optional)</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">New Password</label>
+                            <input type="password" name="new_password" class="form-control" placeholder="Leave blank to keep unchanged">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Confirm New Password</label>
+                            <input type="password" name="confirm_password" class="form-control" placeholder="Confirm new password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 py-2 fw-bold">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

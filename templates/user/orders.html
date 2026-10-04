@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-box-seam text-primary me-2"></i> My Order History</h3>
+
+    {% if orders %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th scope="col" class="py-3 ps-4">Order #</th>
+                        <th scope="col" class="py-3">Date</th>
+                        <th scope="col" class="py-3">Total Amount</th>
+                        <th scope="col" class="py-3">Status</th>
+                        <th scope="col" class="py-3 text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-primary">#{{ order.order_number }}</td>
+                        <td class="small text-muted">{{ order.created_at.strftime('%b %d, %Y - %H:%M') }}</td>
+                        <td class="fw-bold">${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            {% if order.status == 'Delivered' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-check-circle me-1"></i> Delivered</span>
+                            {% elif order.status == 'Shipped' %}
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-truck me-1"></i> Shipped</span>
+                            {% elif order.status == 'Processing' %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-gear-spin me-1"></i> Processing</span>
+                            {% elif order.status == 'Cancelled' %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-x-circle me-1"></i> Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-clock me-1"></i> Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ url_for('user.order_detail', order_id=order.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                View & Track <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-4 border shadow-sm">
+        <i class="bi bi-box-seam fs-1 text-muted"></i>
+        <h5 class="fw-bold mt-3">No Orders Yet</h5>
+        <p class="text-muted">You haven't placed any orders with ElectroHub yet.</p>
+        <a href="{{ url_for('shop.products') }}" class="btn btn-primary rounded-pill px-4">Browse Flagship Tech</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Shop Electronics & Tech Catalog | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Products Catalog</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Sidebar Filter -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+                <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-funnel-fill text-primary me-2"></i> Filters</span>
+                    <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-link text-decoration-none text-muted p-0">Reset</a>
+                </h5>
+
+                <form action="{{ url_for('shop.products') }}" method="GET">
+                    <!-- Search Keyword -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase">Search Keyword</label>
+                        <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="e.g. OLED, MacBook...">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase">Categories</label>
+                        <select name="category" class="form-select form-select-sm">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase">Brand</label>
+                        <select name="brand" class="form-select form-select-sm">
+                            <option value="">All Brands</option>
+                            {% for b in brands %}
+                            <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-uppercase">Price Range ($)</label>
+                        <div class="d-flex gap-2 align-items-center">
+                            <input type="number" name="min_price" value="{{ min_price if min_price is not none else '' }}" class="form-control form-control-sm" placeholder="Min">
+                            <span>-</span>
+                            <input type="number" name="max_price" value="{{ max_price if max_price is not none else '' }}" class="form-control form-control-sm" placeholder="Max">
+                        </div>
+                    </div>
+
+                    <!-- Hidden Sort Parameter -->
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+
+                    <button type="submit" class="btn btn-primary w-100 rounded-3 btn-sm fw-bold">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Listing Grid -->
+        <div class="col-lg-9">
+            <!-- Header Controls -->
+            <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <h6 class="fw-bold mb-0">Showing {{ products|length }} Products</h6>
+                        {% if q %}
+                        <small class="text-muted">Results for "<span class="text-primary">{{ q }}</span>"</small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sort Form -->
+                    <form action="{{ url_for('shop.products') }}" method="GET" class="d-flex align-items-center gap-2">
+                        {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                        {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
+                        {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                        {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+
+                        <label class="small fw-semibold text-muted text-nowrap">Sort By:</label>
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="featured" {% if sort_by == 'featured' %}selected{% endif %}>Featured</option>
+                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            {% if products %}
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="product-card">
+                        {% if product.discount_percent > 0 %}
+                        <span class="product-badge bg-danger text-white">-{{ product.discount_percent }}% OFF</span>
+                        {% endif %}
+                        <button class="wishlist-btn-corner btn-wishlist-toggle" data-url="{{ url_for('shop.toggle_wishlist', product_id=product.id) }}">
+                            <i class="bi bi-heart"></i>
+                        </button>
+                        <div class="product-img-wrapper">
+                            <img src="{{ product.thumbnail }}" alt="{{ product.title }}">
+                        </div>
+                        <div class="product-card-body">
+                            <div class="product-brand">{{ product.brand }}</div>
+                            <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-title">{{ product.title }}</a>
+                            <div class="rating-stars">
+                                <i class="bi bi-star-fill"></i> {{ product.rating }}
+                            </div>
+                            <div class="price-box mb-3">
+                                <span class="current-price">${{ "%.2f"|format(product.price) }}</span>
+                                {% if product.original_price %}
+                                <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                                {% endif %}
+                            </div>
+                            <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">
+                                <button type="submit" class="btn btn-outline-primary w-100 rounded-3 fw-bold btn-sm py-2">
+                                    <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5 bg-white rounded-4 border">
+                <i class="bi bi-search fs-1 text-muted"></i>
+                <h5 class="fw-bold mt-3">No Products Found</h5>
+                <p class="text-muted small">Try adjusting your filters or search keywords.</p>
+                <a href="{{ url_for('shop.products') }}" class="btn btn-primary btn-sm rounded-pill">Reset All Filters</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

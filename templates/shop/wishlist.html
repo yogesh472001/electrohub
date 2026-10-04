@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}My Saved Wishlist | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-heart-fill text-danger me-2"></i> My Wishlist</h3>
+
+    {% if wishlist_items %}
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                <form action="{{ url_for('shop.toggle_wishlist', product_id=item.product.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="wishlist-btn-corner active" title="Remove from Wishlist">
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    </button>
+                </form>
+                <div class="product-img-wrapper">
+                    <img src="{{ item.product.thumbnail }}" alt="{{ item.product.title }}">
+                </div>
+                <div class="product-card-body">
+                    <div class="product-brand">{{ item.product.brand }}</div>
+                    <a href="{{ url_for('shop.product_detail', slug=item.product.slug) }}" class="product-title">{{ item.product.title }}</a>
+                    <div class="price-box mb-3">
+                        <span class="current-price">${{ "%.2f"|format(item.product.price) }}</span>
+                    </div>
+                    <form action="{{ url_for('cart.add_to_cart', product_id=item.product.id) }}" method="POST" class="ajax-add-to-cart">
+                        <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold btn-sm py-2">
+                            <i class="bi bi-cart-plus me-1"></i> Move to Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-4 border">
+        <i class="bi bi-heart fs-1 text-muted"></i>
+        <h5 class="fw-bold mt-3">Your Wishlist is Empty</h5>
+        <p class="text-muted">Explore our catalog and click the heart icon on any tech product to save it here.</p>
+        <a href="{{ url_for('shop.products') }}" class="btn btn-primary rounded-pill px-4">Browse Catalog</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

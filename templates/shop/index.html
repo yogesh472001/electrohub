@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}ElectroHub | Flagship Laptops, Mobiles, Accessories & Gaming Gear{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Tech Banner -->
+    <div class="hero-banner shadow-lg">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="hero-tag"><i class="bi bi-stars"></i> NEXT-GEN TECH ARRIVALS 2026</span>
+                <h1 class="display-4 fw-extrabold text-white mb-3">Upgrade Your Setup With Flagship Gear.</h1>
+                <p class="lead text-light opacity-75 mb-4">Discover high-performance laptops, 4K OLED displays, active noise-canceling audio, and gaming peripherals built for ultimate speed.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('shop.products') }}" class="btn btn-info btn-lg rounded-pill px-4 py-2.5 fw-bold text-dark shadow">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> Shop All Tech
+                    </a>
+                    <a href="{{ url_for('shop.products', category='laptops') }}" class="btn btn-outline-light btn-lg rounded-pill px-4 py-2.5 fw-semibold">
+                        <i class="bi bi-laptop me-1"></i> Explore Laptops
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=700&auto=format&fit=crop&q=80" alt="Tech Setup" class="img-fluid rounded-4 shadow-lg border border-secondary">
+            </div>
+        </div>
+    </div>
+
+    <!-- Value Propositions -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3 col-6">
+            <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+                <div class="fs-2 text-primary"><i class="bi bi-truck"></i></div>
+                <div>
+                    <h6 class="fw-bold mb-0">Free Shipping</h6>
+                    <small class="text-muted">On orders over $499</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+                <div class="fs-2 text-info"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <h6 class="fw-bold mb-0">2-Year Warranty</h6>
+                    <small class="text-muted">100% Genuine tech</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+                <div class="fs-2 text-warning"><i class="bi bi-arrow-counterclockwise"></i></div>
+                <div>
+                    <h6 class="fw-bold mb-0">30-Day Returns</h6>
+                    <small class="text-muted">Hassle-free guarantee</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+                <div class="fs-2 text-success"><i class="bi bi-headset"></i></div>
+                <div>
+                    <h6 class="fw-bold mb-0">24/7 Tech Support</h6>
+                    <small class="text-muted">Dedicated expert help</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="mb-5">
+        <div class="section-title">
+            <span><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i> Browse Categories</span>
+            <a href="{{ url_for('shop.products') }}" class="btn btn-link text-primary text-decoration-none small fw-semibold">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for cat in categories %}
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="{{ url_for('shop.products', category=cat.slug) }}" class="category-card">
+                    <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="category-img">
+                    <h6 class="fw-bold mb-1">{{ cat.name }}</h6>
+                    <small class="text-muted">{{ cat.products|length }} Products</small>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Flash Sales Banner & Deals -->
+    {% if flash_deals %}
+    <div class="mb-5">
+        <div class="p-4 bg-danger bg-gradient text-white rounded-4 shadow-sm mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0"><i class="bi bi-fire me-2"></i> Limited Time Flash Sales</h4>
+                <small>Save up to 30% on flagship hardware before stock runs out!</small>
+            </div>
+            <span class="badge bg-white text-danger fs-6 px-3 py-2 fw-bold"><i class="bi bi-clock-history me-1"></i> Ends Soon</span>
+        </div>
+        <div class="row g-4">
+            {% for product in flash_deals %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    <span class="product-badge bg-danger text-white">-{{ product.discount_percent }}% OFF</span>
+                    <button class="wishlist-btn-corner btn-wishlist-toggle" data-url="{{ url_for('shop.toggle_wishlist', product_id=product.id) }}" title="Add to Wishlist">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                    <div class="product-img-wrapper">
+                        <img src="{{ product.thumbnail }}" alt="{{ product.title }}">
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-brand">{{ product.brand }}</div>
+                        <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-title">{{ product.title }}</a>
+                        <div class="rating-stars">
+                            <i class="bi bi-star-fill"></i> {{ product.rating }} <span class="text-muted">({{ product.stock }} in stock)</span>
+                        </div>
+                        <div class="price-box mb-3">
+                            <span class="current-price">${{ "%.2f"|format(product.price) }}</span>
+                            {% if product.original_price %}
+                            <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                            {% endif %}
+                        </div>
+                        <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">
+                            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold btn-sm py-2">
+                                <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Featured Products -->
+    <div class="mb-5">
+        <div class="section-title">
+            <span><i class="bi bi-star-fill text-warning me-2"></i> Featured Products</span>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    {% if product.discount_percent > 0 %}
+                    <span class="product-badge bg-primary text-white">-{{ product.discount_percent }}% OFF</span>
+                    {% endif %}
+                    <button class="wishlist-btn-corner btn-wishlist-toggle" data-url="{{ url_for('shop.toggle_wishlist', product_id=product.id) }}">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                    <div class="product-img-wrapper">
+                        <img src="{{ product.thumbnail }}" alt="{{ product.title }}">
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-brand">{{ product.brand }}</div>
+                        <a href="{{ url_for('shop.product_detail', slug=product.slug) }}" class="product-title">{{ product.title }}</a>
+                        <div class="rating-stars">
+                            <i class="bi bi-star-fill"></i> {{ product.rating }}
+                        </div>
+                        <div class="price-box mb-3">
+                            <span class="current-price">${{ "%.2f"|format(product.price) }}</span>
+                            {% if product.original_price %}
+                            <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                            {% endif %}
+                        </div>
+                        <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">
+                            <button type="submit" class="btn btn-outline-primary w-100 rounded-3 fw-bold btn-sm py-2">
+                                <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

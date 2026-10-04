@@ -1,0 +1,28 @@
+# Python virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite Database & Local Data
+*.db
+*.sqlite3
+
+# Environment & Secrets
+.env
+.env.local
+
+# IDE & OS files
+.DS_Store
+.vscode/
+.idea/
+
+# Flask session & upload cache
+instance/
+static/uploads/*
+!static/uploads/.gitkeep

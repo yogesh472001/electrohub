@@ -1,0 +1,71 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Categories | ElectroHub Admin{% endblock %}
+
+{% block admin_content %}
+<div class="row g-4">
+    <!-- Category Form -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-folder-plus text-primary me-2"></i> Add Category</h5>
+            <form action="{{ url_for('admin.categories') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Category Name *</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Smartwatches" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Image URL</label>
+                    <input type="url" name="image_url" class="form-control" placeholder="https://images.unsplash.com/...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description</label>
+                    <textarea name="description" class="form-control" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold">Create Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category List Table -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 ps-4">Category</th>
+                            <th class="py-3">Slug</th>
+                            <th class="py-3">Products Count</th>
+                            <th class="py-3 text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if cat.image_url %}
+                                    <img src="{{ cat.image_url }}" alt="{{ cat.name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0">{{ cat.name }}</div>
+                                        <small class="text-muted">{{ cat.description or '' }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-monospace text-muted small">{{ cat.slug }}</td>
+                            <td><span class="badge bg-primary rounded-pill">{{ cat.products|length }}</span></td>
+                            <td class="text-end pe-4">
+                                <form action="{{ url_for('admin.delete_category', cat_id=cat.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete category {{ cat.name }}?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

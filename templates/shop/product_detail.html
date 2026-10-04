@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }} | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.products', category=product.category.slug) }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Main Product Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+        <div class="row g-4 align-items-center">
+            <!-- Product Image -->
+            <div class="col-md-6 text-center position-relative">
+                {% if product.discount_percent > 0 %}
+                <span class="badge bg-danger position-absolute top-0 start-0 p-2 fs-6 rounded-3">-{{ product.discount_percent }}% OFF</span>
+                {% endif %}
+                <img src="{{ product.thumbnail }}" alt="{{ product.title }}" class="img-fluid rounded-4 p-3 max-vh-50" style="max-height: 400px; object-fit: contain;">
+            </div>
+
+            <!-- Product Specs & Buying Options -->
+            <div class="col-md-6">
+                <span class="badge bg-secondary text-uppercase mb-2">{{ product.brand }}</span>
+                <h2 class="fw-bold mb-2 text-dark">{{ product.title }}</h2>
+
+                <!-- Rating & Reviews -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="rating-stars mb-0 fs-5">
+                        <i class="bi bi-star-fill"></i>
+                        <span class="fw-bold text-dark fs-6 ms-1">{{ product.rating }}</span>
+                    </div>
+                    <span class="text-muted">•</span>
+                    <span class="small text-muted">Model ID: EH-PROD-{{ product.id }}</span>
+                </div>
+
+                <!-- Price Box -->
+                <div class="d-flex align-items-baseline gap-3 mb-4 p-3 bg-light rounded-3">
+                    <span class="display-6 fw-extrabold text-primary">${{ "%.2f"|format(product.price) }}</span>
+                    {% if product.original_price %}
+                    <span class="fs-5 text-muted text-decoration-line-through">${{ "%.2f"|format(product.original_price) }}</span>
+                    <span class="badge bg-success">Save ${{ "%.2f"|format(product.original_price - product.price) }}</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted mb-4">{{ product.description }}</p>
+
+                <!-- Stock Badge -->
+                <div class="mb-4">
+                    {% if product.stock > 0 %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-1"></i> In Stock ({{ product.stock }} units remaining)
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
+                            <i class="bi bi-x-circle-fill me-1"></i> Out of Stock
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Add to Cart & Wishlist Form -->
+                {% if product.stock > 0 %}
+                <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart mb-4">
+                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                        <div class="input-group style-qty" style="width: 130px;">
+                            <button type="button" class="btn btn-outline-secondary btn-qty-minus"><i class="bi bi-dash"></i></button>
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control text-center fw-bold">
+                            <button type="button" class="btn btn-outline-secondary btn-qty-plus"><i class="bi bi-plus"></i></button>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-3 px-4 fw-bold flex-grow-1">
+                            <i class="bi bi-bag-plus me-2"></i> Add to Cart
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-lg rounded-3 btn-wishlist-toggle {% if in_wishlist %}active{% endif %}" data-url="{{ url_for('shop.toggle_wishlist', product_id=product.id) }}" title="Wishlist">
+                            <i class="bi bi-heart{% if in_wishlist %}-fill text-danger{% endif %}"></i>
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <!-- Guarantees List -->
+                <div class="row g-2 border-top pt-3 text-muted small">
+                    <div class="col-6"><i class="bi bi-truck text-primary me-2"></i> Fast Insured Delivery</div>
+                    <div class="col-6"><i class="bi bi-shield-check text-success me-2"></i> 2-Year Official Warranty</div>
+                    <div class="col-6"><i class="bi bi-arrow-counterclockwise text-warning me-2"></i> 30-Day Money Back</div>
+                    <div class="col-6"><i class="bi bi-credit-card text-info me-2"></i> Secure Checkout</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Specifications Table -->
+    {% if product.specifications %}
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+        <h4 class="fw-bold mb-3"><i class="bi bi-sliders text-primary me-2"></i> Technical Specifications</h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <tbody>
+                    {% for key, val in product.specifications.items() %}
+                    <tr>
+                        <th style="width: 30%;" class="bg-light text-muted">{{ key }}</th>
+                        <td class="fw-semibold text-dark">{{ val }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="mb-5">
+        <h4 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-info me-2"></i> You Might Also Like</h4>
+        <div class="row g-4">
+            {% for rel in related_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        <img src="{{ rel.thumbnail }}" alt="{{ rel.title }}">
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-brand">{{ rel.brand }}</div>
+                        <a href="{{ url_for('shop.product_detail', slug=rel.slug) }}" class="product-title">{{ rel.title }}</a>
+                        <div class="price-box">
+                            <span class="current-price">${{ "%.2f"|format(rel.price) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

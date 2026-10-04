@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="display-1 text-danger fw-bold mb-3">500</div>
+    <h2 class="fw-bold mb-3">Internal Server Error</h2>
+    <p class="text-muted mb-4 fs-5">Something went wrong on our server. Please try refreshing or check back in a few moments.</p>
+    <a href="{{ url_for('shop.index') }}" class="btn btn-outline-primary rounded-pill px-4 py-2">
+        <i class="bi bi-arrow-left me-2"></i> Return to Store
+    </a>
+</div>
+{% endblock %}
