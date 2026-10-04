@@ -87,10 +87,13 @@
                         {% for item in cart_items %}
                         <div class="list-group-item px-0 d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">
-                                <img src="{{ item.product.thumbnail }}" alt="{{ item.product.title }}" class="rounded" style="width: 45px; height: 45px; object-fit: contain;">
+                                <img src="{{ item.variant.image_url if (item.variant and item.variant.image_url) else item.product.thumbnail }}" alt="{{ item.product.title }}" class="rounded" style="width: 45px; height: 45px; object-fit: contain;">
                                 <div>
                                     <div class="small fw-bold text-truncate" style="max-width: 180px;">{{ item.product.title }}</div>
-                                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ "%.2f"|format(item.product.price) }}</small>
+                                    {% if item.selected_color %}
+                                    <small class="badge bg-light text-dark border">{{ item.selected_color }}</small>
+                                    {% endif %}
+                                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ "%.2f"|format(item.unit_price) }}</small>
                                 </div>
                             </div>
                             <span class="fw-bold small">${{ "%.2f"|format(item.subtotal) }}</span>

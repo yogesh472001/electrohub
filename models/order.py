@@ -30,6 +30,7 @@ class OrderItem(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     product_name = db.Column(db.String(150), nullable=False)
+    selected_color = db.Column(db.String(50), nullable=True)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     thumbnail = db.Column(db.String(255), nullable=True)
@@ -39,4 +40,4 @@ class OrderItem(db.Model):
         return self.price * self.quantity
 
     def __repr__(self):
-        return f"<OrderItem {self.product_name} x {self.quantity}>"
+        return f"<OrderItem {self.product_name} ({self.selected_color}) x {self.quantity}>"

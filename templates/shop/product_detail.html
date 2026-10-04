@@ -16,56 +16,80 @@
     <!-- Main Product Card -->
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
         <div class="row g-4 align-items-center">
-            <!-- Product Image -->
+            <!-- Product Image Gallery / Photo -->
             <div class="col-md-6 text-center position-relative">
                 {% if product.discount_percent > 0 %}
                 <span class="badge bg-danger position-absolute top-0 start-0 p-2 fs-6 rounded-3">-{{ product.discount_percent }}% OFF</span>
                 {% endif %}
-                <img src="{{ product.thumbnail }}" alt="{{ product.title }}" class="img-fluid rounded-4 p-3 max-vh-50" style="max-height: 400px; object-fit: contain;">
+                <img id="main-product-img" src="{{ product.thumbnail }}" alt="{{ product.title }}" class="img-fluid rounded-4 p-3 shadow-sm transition-all" style="max-height: 420px; object-fit: contain;">
             </div>
 
-            <!-- Product Specs & Buying Options -->
+            <!-- Product Specs & Color Variant Controls -->
             <div class="col-md-6">
                 <span class="badge bg-secondary text-uppercase mb-2">{{ product.brand }}</span>
                 <h2 class="fw-bold mb-2 text-dark">{{ product.title }}</h2>
 
-                <!-- Rating & Reviews -->
+                <!-- Rating & Model -->
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <div class="rating-stars mb-0 fs-5">
                         <i class="bi bi-star-fill"></i>
                         <span class="fw-bold text-dark fs-6 ms-1">{{ product.rating }}</span>
                     </div>
                     <span class="text-muted">•</span>
-                    <span class="small text-muted">Model ID: EH-PROD-{{ product.id }}</span>
+                    <span class="small text-muted">Model: EH-PROD-{{ product.id }}</span>
                 </div>
 
                 <!-- Price Box -->
                 <div class="d-flex align-items-baseline gap-3 mb-4 p-3 bg-light rounded-3">
-                    <span class="display-6 fw-extrabold text-primary">${{ "%.2f"|format(product.price) }}</span>
+                    <span id="display-price" class="display-6 fw-extrabold text-primary">${{ "%.2f"|format(product.price) }}</span>
                     {% if product.original_price %}
                     <span class="fs-5 text-muted text-decoration-line-through">${{ "%.2f"|format(product.original_price) }}</span>
                     <span class="badge bg-success">Save ${{ "%.2f"|format(product.original_price - product.price) }}</span>
                     {% endif %}
                 </div>
 
-                <p class="text-muted mb-4">{{ product.description }}</p>
+                <!-- COLOR VARIANTS SELECTOR (Multiple photos according to color & dynamic price/description) -->
+                {% if product.variants %}
+                <div class="mb-4 p-3 border rounded-3 bg-white">
+                    <label class="form-label fw-bold small text-uppercase mb-2 d-flex justify-content-between">
+                        <span><i class="bi bi-palette text-primary me-1"></i> Select Color: <strong id="selected-color-label" class="text-dark">{{ product.variants[0].color_name }}</strong></span>
+                    </label>
+                    
+                    <div class="d-flex flex-wrap gap-2" id="color-swatches-container">
+                        {% for v in product.variants %}
+                        <button type="button" 
+                                class="btn color-swatch-btn p-2 rounded-3 border d-flex align-items-center gap-2 {% if loop.first %}active border-primary bg-light fw-bold{% endif %}"
+                                data-variant-id="{{ v.id }}"
+                                data-color-name="{{ v.color_name }}"
+                                data-image-url="{{ v.image_url if v.image_url else product.thumbnail }}"
+                                data-price="{{ "%.2f"|format(v.effective_price) }}"
+                                data-stock="{{ v.stock }}"
+                                data-desc="{{ v.description or '' }}">
+                            <span class="color-dot rounded-circle border d-inline-block" style="width: 20px; height: 20px; background-color: {{ v.color_code }};"></span>
+                            <span class="small">{{ v.color_name }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Description & Color Note -->
+                <p id="product-description" class="text-muted mb-4">{{ product.description }}</p>
+                <div id="variant-desc-note" class="alert alert-info py-2 small mb-4 {% if not (product.variants and product.variants[0].description) %}d-none{% endif %}">
+                    <i class="bi bi-info-circle me-1"></i> <span id="variant-desc-text">{{ product.variants[0].description if (product.variants and product.variants[0].description) else '' }}</span>
+                </div>
 
                 <!-- Stock Badge -->
                 <div class="mb-4">
-                    {% if product.stock > 0 %}
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
-                            <i class="bi bi-check-circle-fill me-1"></i> In Stock ({{ product.stock }} units remaining)
-                        </span>
-                    {% else %}
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6 rounded-pill">
-                            <i class="bi bi-x-circle-fill me-1"></i> Out of Stock
-                        </span>
-                    {% endif %}
+                    <span id="stock-badge" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
+                        <i class="bi bi-check-circle-fill me-1"></i> In Stock (<span id="stock-count">{{ product.variants[0].stock if product.variants else product.stock }}</span> units remaining)
+                    </span>
                 </div>
 
                 <!-- Add to Cart & Wishlist Form -->
-                {% if product.stock > 0 %}
                 <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart mb-4">
+                    <input type="hidden" name="variant_id" id="selected-variant-id" value="{{ product.variants[0].id if product.variants else '' }}">
+                    
                     <div class="d-flex gap-3 align-items-center flex-wrap">
                         <div class="input-group style-qty" style="width: 130px;">
                             <button type="button" class="btn btn-outline-secondary btn-qty-minus"><i class="bi bi-dash"></i></button>
@@ -80,14 +104,13 @@
                         </button>
                     </div>
                 </form>
-                {% endif %}
 
                 <!-- Guarantees List -->
                 <div class="row g-2 border-top pt-3 text-muted small">
-                    <div class="col-6"><i class="bi bi-truck text-primary me-2"></i> Fast Insured Delivery</div>
+                    <div class="col-6"><i class="bi bi-truck text-primary me-2"></i> Fast Insured Shipping</div>
                     <div class="col-6"><i class="bi bi-shield-check text-success me-2"></i> 2-Year Official Warranty</div>
                     <div class="col-6"><i class="bi bi-arrow-counterclockwise text-warning me-2"></i> 30-Day Money Back</div>
-                    <div class="col-6"><i class="bi bi-credit-card text-info me-2"></i> Secure Checkout</div>
+                    <div class="col-6"><i class="bi bi-credit-card text-info me-2"></i> Secure Payment</div>
                 </div>
             </div>
         </div>
@@ -115,7 +138,7 @@
     <!-- Related Products -->
     {% if related_products %}
     <div class="mb-5">
-        <h4 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-info me-2"></i> You Might Also Like</h4>
+        <h4 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-info me-2"></i> Related Products</h4>
         <div class="row g-4">
             {% for rel in related_products %}
             <div class="col-lg-3 col-md-6">
@@ -137,4 +160,68 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mainImg = document.getElementById('main-product-img');
+    const displayPrice = document.getElementById('display-price');
+    const stockCount = document.getElementById('stock-count');
+    const selectedColorLabel = document.getElementById('selected-color-label');
+    const selectedVariantInput = document.getElementById('selected-variant-id');
+    const variantDescNote = document.getElementById('variant-desc-note');
+    const variantDescText = document.getElementById('variant-desc-text');
+    const swatches = document.querySelectorAll('.color-swatch-btn');
+
+    swatches.forEach(button => {
+        button.addEventListener('click', function () {
+            swatches.forEach(b => {
+                b.classList.remove('active', 'border-primary', 'bg-light', 'fw-bold');
+            });
+            this.classList.add('active', 'border-primary', 'bg-light', 'fw-bold');
+
+            const variantId = this.getAttribute('data-variant-id');
+            const colorName = this.getAttribute('data-color-name');
+            const imgUrl = this.getAttribute('data-image-url');
+            const price = this.getAttribute('data-price');
+            const stock = this.getAttribute('data-stock');
+            const desc = this.getAttribute('data-desc');
+
+            if (mainImg && imgUrl) {
+                mainImg.style.opacity = '0.5';
+                setTimeout(() => {
+                    mainImg.src = imgUrl;
+                    mainImg.style.opacity = '1';
+                }, 150);
+            }
+
+            if (displayPrice && price) {
+                displayPrice.textContent = `$${price}`;
+            }
+
+            if (stockCount && stock) {
+                stockCount.textContent = stock;
+            }
+
+            if (selectedColorLabel && colorName) {
+                selectedColorLabel.textContent = colorName;
+            }
+
+            if (selectedVariantInput && variantId) {
+                selectedVariantInput.value = variantId;
+            }
+
+            if (variantDescNote && variantDescText) {
+                if (desc && desc.trim() !== '') {
+                    variantDescText.textContent = desc;
+                    variantDescNote.classList.remove('d-none');
+                } else {
+                    variantDescNote.classList.add('d-none');
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

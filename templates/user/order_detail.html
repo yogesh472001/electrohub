@@ -70,7 +70,10 @@
                                         <img src="{{ item.thumbnail }}" alt="{{ item.product_name }}" class="rounded" style="width: 50px; height: 50px; object-fit: contain;">
                                         <div>
                                             <div class="fw-bold small">{{ item.product_name }}</div>
-                                            <small class="text-muted">Unit Price: ${{ "%.2f"|format(item.price) }}</small>
+                                            {% if item.selected_color %}
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle"><i class="bi bi-palette me-1"></i> Color: {{ item.selected_color }}</span>
+                                            {% endif %}
+                                            <div class="text-muted small">Unit Price: ${{ "%.2f"|format(item.price) }}</div>
                                         </div>
                                     </div>
                                 </td>

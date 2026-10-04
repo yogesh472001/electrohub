@@ -27,17 +27,20 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center gap-3">
-                                        <img src="{{ item.product.thumbnail }}" alt="{{ item.product.title }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: contain;">
+                                        <img src="{{ item.variant.image_url if (item.variant and item.variant.image_url) else item.product.thumbnail }}" alt="{{ item.product.title }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: contain;">
                                         <div>
                                             <a href="{{ url_for('shop.product_detail', slug=item.product.slug) }}" class="fw-bold text-dark text-decoration-none d-block small mb-1">{{ item.product.title }}</a>
-                                            <span class="badge bg-light text-muted border">{{ item.product.brand }}</span>
+                                            <span class="badge bg-light text-muted border me-1">{{ item.product.brand }}</span>
+                                            {% if item.selected_color %}
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle"><i class="bi bi-palette me-1"></i> {{ item.selected_color }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </td>
-                                <td class="fw-semibold">${{ "%.2f"|format(item.product.price) }}</td>
+                                <td class="fw-semibold">${{ "%.2f"|format(item.unit_price) }}</td>
                                 <td>
                                     <form action="{{ url_for('cart.update_cart', item_id=item.id) }}" method="POST" class="d-flex align-items-center gap-1">
-                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control form-control-sm text-center" style="width: 65px;" onchange="this.form.submit()">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.variant.stock if item.variant else item.product.stock }}" class="form-control form-control-sm text-center" style="width: 65px;" onchange="this.form.submit()">
                                     </form>
                                 </td>
                                 <td class="text-end fw-bold text-dark">${{ "%.2f"|format(item.subtotal) }}</td>

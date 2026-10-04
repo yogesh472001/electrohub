@@ -2,7 +2,7 @@ import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db
-from models.product import Product
+from models.product import Product, ProductVariant
 from models.cart import CartItem
 from models.order import Order, OrderItem
 
@@ -31,28 +31,53 @@ def view_cart():
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
     quantity = int(request.form.get('quantity', 1))
+    variant_id = request.form.get('variant_id', type=int)
 
-    if product.stock < quantity:
-        flash(f'Sorry, only {product.stock} units of {product.title} are in stock.', 'danger')
+    selected_variant = None
+    selected_color = None
+    effective_stock = product.stock
+
+    if variant_id:
+        selected_variant = ProductVariant.query.filter_by(id=variant_id, product_id=product_id).first()
+        if selected_variant:
+            selected_color = selected_variant.color_name
+            effective_stock = selected_variant.stock
+
+    if effective_stock < quantity:
+        flash(f'Sorry, only {effective_stock} units available for this item.', 'danger')
         return redirect(request.referrer or url_for('shop.products'))
 
-    cart_item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    cart_item = CartItem.query.filter_by(
+        user_id=current_user.id,
+        product_id=product_id,
+        variant_id=variant_id
+    ).first()
+
     if cart_item:
-        if (cart_item.quantity + quantity) > product.stock:
-            flash(f'Cannot add more than available stock ({product.stock}).', 'warning')
+        if (cart_item.quantity + quantity) > effective_stock:
+            flash(f'Cannot add more than available stock ({effective_stock}).', 'warning')
             return redirect(request.referrer or url_for('cart.view_cart'))
         cart_item.quantity += quantity
     else:
-        cart_item = CartItem(user_id=current_user.id, product_id=product_id, quantity=quantity)
+        cart_item = CartItem(
+            user_id=current_user.id,
+            product_id=product_id,
+            variant_id=variant_id,
+            selected_color=selected_color,
+            quantity=quantity
+        )
         db.session.add(cart_item)
 
     db.session.commit()
 
+    color_msg = f" ({selected_color})" if selected_color else ""
+    msg = f'{product.title}{color_msg} added to your cart!'
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         cart_count = sum(item.quantity for item in current_user.cart_items)
-        return jsonify({'success': True, 'message': f'{product.title} added to your cart!', 'cart_count': cart_count})
+        return jsonify({'success': True, 'message': msg, 'cart_count': cart_count})
 
-    flash(f'{product.title} added to your cart!', 'success')
+    flash(msg, 'success')
     return redirect(request.referrer or url_for('cart.view_cart'))
 
 @cart_bp.route('/update/<int:item_id>', methods=['POST'])
@@ -60,12 +85,13 @@ def add_to_cart(product_id):
 def update_cart(item_id):
     cart_item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
     quantity = int(request.form.get('quantity', 1))
+    max_stock = cart_item.variant.stock if cart_item.variant else cart_item.product.stock
 
     if quantity <= 0:
         db.session.delete(cart_item)
-    elif quantity > cart_item.product.stock:
-        flash(f'Only {cart_item.product.stock} units available.', 'warning')
-        cart_item.quantity = cart_item.product.stock
+    elif quantity > max_stock:
+        flash(f'Only {max_stock} units available.', 'warning')
+        cart_item.quantity = max_stock
     else:
         cart_item.quantity = quantity
 
@@ -124,7 +150,6 @@ def place_order():
         flash('Please fill in all required shipping details.', 'danger')
         return redirect(url_for('cart.checkout'))
 
-    # Calculate final totals & verify stock
     subtotal = sum(item.subtotal for item in cart_items)
     shipping = 0.0 if subtotal > 499 else 25.0
     tax = round(subtotal * 0.08, 2)
@@ -132,8 +157,9 @@ def place_order():
 
     # Stock check
     for item in cart_items:
-        if item.product.stock < item.quantity:
-            flash(f'Insufficient stock for {item.product.title}. Only {item.product.stock} remaining.', 'danger')
+        max_stk = item.variant.stock if item.variant else item.product.stock
+        if max_stk < item.quantity:
+            flash(f'Insufficient stock for {item.product.title}.', 'danger')
             return redirect(url_for('cart.view_cart'))
 
     # Generate order number
@@ -156,18 +182,25 @@ def place_order():
     db.session.flush()
 
     for item in cart_items:
+        thumb = item.variant.image_url if (item.variant and item.variant.image_url) else item.product.thumbnail
+        price = item.unit_price
+
         order_item = OrderItem(
             order_id=order.id,
             product_id=item.product_id,
+            selected_color=item.selected_color,
             product_name=item.product.title,
-            price=item.product.price,
+            price=price,
             quantity=item.quantity,
-            thumbnail=item.product.thumbnail
+            thumbnail=thumb
         )
         db.session.add(order_item)
         
         # Deduct stock
-        item.product.stock -= item.quantity
+        if item.variant:
+            item.variant.stock -= item.quantity
+        else:
+            item.product.stock -= item.quantity
         
         # Remove from cart
         db.session.delete(item)

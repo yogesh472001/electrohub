@@ -34,11 +34,12 @@ class Product(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     thumbnail = db.Column(db.String(255), nullable=True)
     description = db.Column(db.Text, nullable=True)
-    specifications_json = db.Column(db.Text, nullable=True) # JSON stored as string for compatibility
+    specifications_json = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     cart_items = db.relationship('CartItem', backref='product', lazy=True, cascade="all, delete-orphan")
     wishlist_items = db.relationship('WishlistItem', backref='product', lazy=True, cascade="all, delete-orphan")
+    variants = db.relationship('ProductVariant', backref='product', lazy=True, cascade="all, delete-orphan")
 
     @property
     def specifications(self):
@@ -58,3 +59,24 @@ class Product(db.Model):
 
     def __repr__(self):
         return f"<Product {self.title}>"
+
+class ProductVariant(db.Model):
+    __tablename__ = 'product_variants'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    color_name = db.Column(db.String(50), nullable=False)
+    color_code = db.Column(db.String(20), default='#333333')
+    image_url = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Float, nullable=True) # Variant specific price override
+    stock = db.Column(db.Integer, default=10)   # Variant specific stock
+    description = db.Column(db.Text, nullable=True) # Color variant description note
+
+    cart_items = db.relationship('CartItem', backref='variant', lazy=True)
+
+    @property
+    def effective_price(self):
+        return self.price if (self.price is not None and self.price > 0) else self.product.price
+
+    def __repr__(self):
+        return f"<ProductVariant {self.color_name} for Product #{self.product_id}>"

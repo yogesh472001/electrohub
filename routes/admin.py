@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db
 from models.user import User
-from models.product import Category, Product
+from models.product import Category, Product, ProductVariant
 from models.order import Order
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -24,6 +24,53 @@ def slugify(text):
     text = text.lower()
     text = re.sub(r'[^a-z0-9]+', '-', text).strip('-')
     return text
+
+def process_variants(product, form):
+    """Saves or updates color variants submitted for a product."""
+    ProductVariant.query.filter_by(product_id=product.id).delete()
+
+    color_names = form.getlist('variant_color_name')
+    color_codes = form.getlist('variant_color_code')
+    image_urls = form.getlist('variant_image_url')
+    prices = form.getlist('variant_price')
+    stocks = form.getlist('variant_stock')
+    descriptions = form.getlist('variant_description')
+
+    for i in range(len(color_names)):
+        c_name = color_names[i].strip()
+        if not c_name:
+            continue
+
+        c_code = color_codes[i].strip() if i < len(color_codes) and color_codes[i].strip() else '#333333'
+        img_url = image_urls[i].strip() if i < len(image_urls) and image_urls[i].strip() else product.thumbnail
+
+        v_price = None
+        if i < len(prices) and prices[i].strip():
+            try:
+                v_price = float(prices[i].strip())
+            except ValueError:
+                v_price = None
+
+        v_stock = product.stock
+        if i < len(stocks) and stocks[i].strip():
+            try:
+                v_stock = int(stocks[i].strip())
+            except ValueError:
+                v_stock = product.stock
+
+        v_desc = descriptions[i].strip() if i < len(descriptions) else None
+
+        variant = ProductVariant(
+            product_id=product.id,
+            color_name=c_name,
+            color_code=c_code,
+            image_url=img_url,
+            price=v_price,
+            stock=v_stock,
+            description=v_desc
+        )
+        db.session.add(variant)
+    db.session.commit()
 
 @admin_bp.route('/dashboard')
 @admin_required
@@ -74,7 +121,6 @@ def add_product():
         if existing_slug:
             slug = f"{slug}-{Product.query.count() + 1}"
 
-        # Specs input from multi-field or json
         specs_raw = request.form.get('specifications_json', '{}')
         try:
             json.loads(specs_raw)
@@ -97,7 +143,11 @@ def add_product():
         )
         db.session.add(new_prod)
         db.session.commit()
-        flash(f'Product "{title}" created successfully!', 'success')
+
+        # Save Color Variants
+        process_variants(new_prod, request.form)
+
+        flash(f'Product "{title}" with color variants created successfully!', 'success')
         return redirect(url_for('admin.products'))
 
     return render_template('admin/product_form.html', categories=categories, product=None)
@@ -129,6 +179,10 @@ def edit_product(product_id):
             pass
 
         db.session.commit()
+
+        # Update Color Variants
+        process_variants(product, request.form)
+
         flash(f'Product "{product.title}" updated successfully!', 'success')
         return redirect(url_for('admin.products'))
 
