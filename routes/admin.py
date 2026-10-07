@@ -1,8 +1,11 @@
 from functools import wraps
 import json
+import os
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import uuid
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 from models import db
 from models.user import User
 from models.product import Category, Product, ProductVariant
@@ -25,8 +28,25 @@ def slugify(text):
     text = re.sub(r'[^a-z0-9]+', '-', text).strip('-')
     return text
 
-def process_variants(product, form):
-    """Saves or updates color variants submitted for a product."""
+def save_uploaded_file(file_obj):
+    """Saves an uploaded image file securely to static/uploads/products/ and returns its web URL path."""
+    if not file_obj or not getattr(file_obj, 'filename', None):
+        return None
+    
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'products')
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    raw_filename = secure_filename(file_obj.filename)
+    if not raw_filename:
+        raw_filename = "product_image.jpg"
+        
+    unique_filename = f"{uuid.uuid4().hex[:8]}_{raw_filename}"
+    filepath = os.path.join(upload_dir, unique_filename)
+    file_obj.save(filepath)
+    return f"/static/uploads/products/{unique_filename}"
+
+def process_variants(product, form, files):
+    """Saves or updates color variants and uploaded photo gallery files for a product."""
     ProductVariant.query.filter_by(product_id=product.id).delete()
 
     color_names = form.getlist('variant_color_name')
@@ -36,13 +56,26 @@ def process_variants(product, form):
     stocks = form.getlist('variant_stock')
     descriptions = form.getlist('variant_description')
 
+    variant_files = files.getlist('variant_image_file')
+
     for i in range(len(color_names)):
         c_name = color_names[i].strip()
         if not c_name:
             continue
 
         c_code = color_codes[i].strip() if i < len(color_codes) and color_codes[i].strip() else '#333333'
-        img_url = image_urls[i].strip() if i < len(image_urls) and image_urls[i].strip() else product.thumbnail
+
+        # Check if an uploaded file is provided for this variant
+        uploaded_variant_url = None
+        if i < len(variant_files):
+            uploaded_variant_url = save_uploaded_file(variant_files[i])
+
+        if uploaded_variant_url:
+            img_url = uploaded_variant_url
+        elif i < len(image_urls) and image_urls[i].strip():
+            img_url = image_urls[i].strip()
+        else:
+            img_url = product.thumbnail
 
         v_price = None
         if i < len(prices) and prices[i].strip():
@@ -70,6 +103,23 @@ def process_variants(product, form):
             description=v_desc
         )
         db.session.add(variant)
+
+    # Process Multiple Extra Uploaded Gallery Photos
+    gallery_files = files.getlist('gallery_files')
+    for idx, g_file in enumerate(gallery_files, 1):
+        g_url = save_uploaded_file(g_file)
+        if g_url:
+            g_variant = ProductVariant(
+                product_id=product.id,
+                color_name=f"Gallery Photo #{idx}",
+                color_code="#38bdf8",
+                image_url=g_url,
+                price=product.price,
+                stock=product.stock,
+                description=f"Additional product angle view #{idx}"
+            )
+            db.session.add(g_variant)
+
     db.session.commit()
 
 @admin_bp.route('/dashboard')
@@ -112,9 +162,12 @@ def add_product():
         original_price = float(request.form.get('original_price', price))
         discount_percent = int(request.form.get('discount_percent', 0))
         stock = int(request.form.get('stock', 0))
-        thumbnail = request.form.get('thumbnail', '').strip() or 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800'
         description = request.form.get('description', '').strip()
         is_featured = True if request.form.get('is_featured') else False
+
+        # Main Photo File Upload or URL
+        uploaded_thumb = save_uploaded_file(request.files.get('thumbnail_file'))
+        thumbnail = uploaded_thumb or request.form.get('thumbnail', '').strip() or 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800'
 
         slug = slugify(title)
         existing_slug = Product.query.filter_by(slug=slug).first()
@@ -144,10 +197,10 @@ def add_product():
         db.session.add(new_prod)
         db.session.commit()
 
-        # Save Color Variants
-        process_variants(new_prod, request.form)
+        # Save Color Variants & Uploaded Photos
+        process_variants(new_prod, request.form, request.files)
 
-        flash(f'Product "{title}" with color variants created successfully!', 'success')
+        flash(f'Product "{title}" created successfully with photos!', 'success')
         return redirect(url_for('admin.products'))
 
     return render_template('admin/product_form.html', categories=categories, product=None)
@@ -166,7 +219,13 @@ def edit_product(product_id):
         product.original_price = float(request.form.get('original_price', product.price))
         product.discount_percent = int(request.form.get('discount_percent', 0))
         product.stock = int(request.form.get('stock'))
-        product.thumbnail = request.form.get('thumbnail', '').strip()
+        
+        uploaded_thumb = save_uploaded_file(request.files.get('thumbnail_file'))
+        if uploaded_thumb:
+            product.thumbnail = uploaded_thumb
+        elif request.form.get('thumbnail', '').strip():
+            product.thumbnail = request.form.get('thumbnail', '').strip()
+
         product.description = request.form.get('description', '').strip()
         product.is_featured = True if request.form.get('is_featured') else False
         product.is_active = True if request.form.get('is_active') else False
@@ -180,10 +239,10 @@ def edit_product(product_id):
 
         db.session.commit()
 
-        # Update Color Variants
-        process_variants(product, request.form)
+        # Update Color Variants & Uploaded Photos
+        process_variants(product, request.form, request.files)
 
-        flash(f'Product "{product.title}" updated successfully!', 'success')
+        flash(f'Product "{product.title}" updated successfully with photos!', 'success')
         return redirect(url_for('admin.products'))
 
     return render_template('admin/product_form.html', categories=categories, product=product)
