@@ -1,6 +1,6 @@
 # Chronological Record of Technical Decisions
 
-This document records the architectural and technical decisions present in the **ElectroHub** codebase.
+This document records the architectural and technical decisions present in the **YAMORA Retails** codebase.
 
 ---
 
@@ -16,7 +16,7 @@ This document records the architectural and technical decisions present in the *
 ---
 
 ### Decision 2: Dual Database Strategy (MySQL Primary with SQLite Fallback)
-- **Decision**: Configure PyMySQL connection string for MySQL/MariaDB while falling back to a local SQLite database (`electrohub.db`) when environment flag `USE_MYSQL` is false.
+- **Decision**: Configure PyMySQL connection string for MySQL/MariaDB while falling back to a local SQLite database (`yamoraretails.db`) when environment flag `USE_MYSQL` is false.
 - **Reason (Verified)**: Allows zero-friction local execution without requiring a running MySQL server, while retaining 100% production MySQL database compatibility.
 - **Current Implementation**: `config.py` inspects `os.environ.get('USE_MYSQL')`.
 - **Files Affected**: `config.py`, `schema.sql`, `database.py`.

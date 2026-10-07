@@ -1,6 +1,6 @@
-# ⚡ ElectroHub - Modern Electronics & Tech E-Commerce Store
+# ⚡ YAMORA Retails - Modern Electronics & Tech E-Commerce Store
 
-ElectroHub is a feature-packed, professional e-commerce web application built for an electronics and technology retail shop. 
+YAMORA Retails is a feature-packed, professional e-commerce web application built for an electronics and technology retail shop. 
 
 Built with **Python Flask**, **MySQL** (with SQLite fallback), **SQLAlchemy**, **HTML5**, **CSS3**, **JavaScript (ES6)**, and **Bootstrap 5**.
 
@@ -50,16 +50,16 @@ pip install -r requirements.txt
 ### 3. Database Setup
 
 #### Option A: SQLite (Immediate Execution)
-Simply run the app! SQLite database `electrohub.db` will be automatically created and populated with demo products and accounts.
+Simply run the app! SQLite database `yamoraretails.db` will be automatically created and populated with demo products and accounts.
 
 #### Option B: MySQL Setup
 1. Create the MySQL database:
 ```sql
-CREATE DATABASE electrohub_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE yamoraretails_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 2. Import `schema.sql`:
 ```bash
-mysql -u root -p electrohub_db < schema.sql
+mysql -u root -p yamoraretails_db < schema.sql
 ```
 3. Set environment variables:
 ```bash
@@ -68,7 +68,7 @@ export MYSQL_USER=root
 export MYSQL_PASSWORD=your_password
 export MYSQL_HOST=127.0.0.1
 export MYSQL_PORT=3306
-export MYSQL_DB=electrohub_db
+export MYSQL_DB=yamoraretails_db
 ```
 
 ### 4. Run the Application
@@ -83,8 +83,8 @@ Open **`http://127.0.0.1:5000`** in your browser.
 
 | Role | Email | Password |
 |---|---|---|
-| **Customer** | `customer@electrohub.com` | `customer123` |
-| **Admin** | `admin@electrohub.com` | `admin123` |
+| **Customer** | `customer@yamoraretails.com` | `customer123` |
+| **Admin** | `admin@yamoraretails.com` | `admin123` |
 
 ---
 

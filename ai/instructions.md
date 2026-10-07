@@ -1,13 +1,13 @@
 # AI Agent Working Instructions & Project Constraints
 
-This document defines the strict rules, architectural constraints, and development guidelines for AI agents working on the **ElectroHub E-Commerce** project.
+This document defines the strict rules, architectural constraints, and development guidelines for AI agents working on the **YAMORA Retails E-Commerce** project.
 
 ---
 
 ## 🚨 Critical Project Rules
 
 1. **Preserve Database Compatibility**:
-   - Maintain compatibility for both **MySQL** (`mysql+pymysql://`) and **SQLite** fallback (`sqlite:///electrohub.db`).
+   - Maintain compatibility for both **MySQL** (`mysql+pymysql://`) and **SQLite** fallback (`sqlite:///yamoraretails.db`).
    - Any schema modifications to SQLAlchemy models in `models/` **MUST** also be updated in `schema.sql`.
 
 2. **Role-Based Authorization Enforcement**:

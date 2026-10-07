@@ -1,6 +1,6 @@
 # Project-Specific Security Checklist & Findings
 
-This document evaluates the **ElectroHub** codebase against standard security criteria using the strict finding format:
+This document evaluates the **YAMORA Retails** codebase against standard security criteria using the strict finding format:
 `Severity → Evidence → Risk → Affected location → Why it matters → Recommended fix`
 
 ---

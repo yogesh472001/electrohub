@@ -1,6 +1,6 @@
 # Threat Model
 
-This document outlines the threat model for the **ElectroHub E-Commerce** platform based on an empirical security analysis of the application architecture, authentication, authorization, and data flows.
+This document outlines the threat model for the **YAMORA Retails E-Commerce** platform based on an empirical security analysis of the application architecture, authentication, authorization, and data flows.
 
 ---
 

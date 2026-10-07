@@ -8,12 +8,12 @@ def seed_database():
     if User.query.first():
         return
 
-    print("Seeding initial ElectroHub database with INR (₹) prices...")
+    print("Seeding initial YAMORA Retails database with INR (₹) prices...")
 
     # Create Default Users
     admin = User(
-        full_name="ElectroHub Admin",
-        email="admin@electrohub.com",
+        full_name="YAMORA Retails Admin",
+        email="admin@yamoraretails.com",
         role="admin",
         phone="+91 98765 43210",
         address="100 Technology Plaza, Bandra Kurla Complex, Mumbai, MH"
@@ -22,7 +22,7 @@ def seed_database():
 
     customer = User(
         full_name="Alex Techie",
-        email="customer@electrohub.com",
+        email="customer@yamoraretails.com",
         role="user",
         phone="+91 98765 01234",
         address="742 Evergreen Heights, Indiranagar, Bengaluru, KA"

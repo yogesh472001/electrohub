@@ -1,4 +1,4 @@
-/* ElectroHub - Interactive JS functionality */
+/* YAMORA Retails - Interactive JS functionality */
 
 document.addEventListener('DOMContentLoaded', function () {
 

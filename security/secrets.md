@@ -1,6 +1,6 @@
 # Secrets Management & Exposure Assessment
 
-This document details the handling, risks, exposure vectors, and findings regarding secrets, credentials, and keys within the **ElectroHub** codebase.
+This document details the handling, risks, exposure vectors, and findings regarding secrets, credentials, and keys within the **YAMORA Retails** codebase.
 
 ---
 
@@ -21,7 +21,7 @@ This document details the handling, risks, exposure vectors, and findings regard
 - **Code Inspection**:
   ```python
   class Config:
-      SECRET_KEY = os.environ.get('SECRET_KEY', 'electrohub-super-secret-key-tech-2026')
+      SECRET_KEY = os.environ.get('SECRET_KEY', 'yamora-retails-super-secret-key-2026')
       MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
       MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'password')
       ...

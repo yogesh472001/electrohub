@@ -1,6 +1,6 @@
 # Known Issues, Risks & Technical Debt
 
-This document records factual observations regarding current limitations, technical debt, and risks identified in the **ElectroHub** codebase.
+This document records factual observations regarding current limitations, technical debt, and risks identified in the **YAMORA Retails** codebase.
 
 ---
 
@@ -20,7 +20,7 @@ This document records factual observations regarding current limitations, techni
 ### 2. Default Fallback Secret Key in Configuration
 - **Issue**: `config.py` contains a hardcoded default string for `SECRET_KEY`.
 - **Severity**: MEDIUM (Security Risk)
-- **Evidence**: `config.py:4`: `SECRET_KEY = os.environ.get('SECRET_KEY', 'electrohub-super-secret-key-tech-2026')`.
+- **Evidence**: `config.py:4`: `SECRET_KEY = os.environ.get('SECRET_KEY', 'yamora-retails-super-secret-key-2026')`.
 - **Affected Area**: `config.py`, Session Management.
 - **Current Behavior**: If `SECRET_KEY` is not provided in environment variables, the application defaults to a static fallback key.
 - **Expected Behavior**: Enforce `SECRET_KEY` generation from environment variables in production environments.

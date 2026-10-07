@@ -1,11 +1,11 @@
 # Current State Snapshot
 
-This document provides a factual snapshot of the **ElectroHub** codebase state as of October 2026.
+This document provides a factual snapshot of the **YAMORA Retails** codebase state as of October 2026.
 
 ---
 
 ## 🎯 Project Purpose & Overview
-**ElectroHub** is a modern e-commerce web platform tailored for an electronics and technology retail shop. It features an online storefront, interactive color variant photo/price swatches, shopping cart, checkout system with dedicated Indian online payment gateways (PhonePe, GPay, Paytm, Cards, Net Banking), customer order tracking, and a full-featured admin management dashboard.
+**YAMORA Retails** is a modern e-commerce web platform tailored for an electronics and technology retail shop. It features an online storefront, interactive color variant photo/price swatches, shopping cart, checkout system with dedicated Indian online payment gateways (PhonePe, GPay, Paytm, Cards, Net Banking), customer order tracking, and a full-featured admin management dashboard.
 
 ---
 
@@ -14,7 +14,7 @@ This document provides a factual snapshot of the **ElectroHub** codebase state a
 - **ORM & Database**: Flask-SQLAlchemy 3.1.1, SQLAlchemy 2.1.3
 - **Database Engines**:
   - **MySQL / MariaDB** (via `PyMySQL` 1.2.3)
-  - **SQLite** (local zero-config fallback `electrohub.db`)
+  - **SQLite** (local zero-config fallback `yamoraretails.db`)
 - **Authentication & Security**: Flask-Login 0.6.3, Flask-Bcrypt 1.0.1
 - **Frontend Stack**: HTML5, CSS3, JavaScript (ES6 Fetch API), Bootstrap 5.3.2, Bootstrap Icons 1.11.1
 - **Version Control**: Git

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In | ElectroHub Tech Store{% endblock %}
+{% block title %}Sign In | YAMORA Retails Tech Store{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -9,15 +9,15 @@
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="bg-dark text-white p-4 text-center">
                     <h4 class="fw-bold mb-1"><i class="bi bi-box-arrow-in-right text-info me-2"></i>Welcome Back</h4>
-                    <p class="small text-muted mb-0">Log in to your ElectroHub account</p>
+                    <p class="small text-muted mb-0">Log in to your YAMORA Retails account</p>
                 </div>
                 <div class="card-body p-4 p-md-5">
                     
                     <!-- Pre-filled credentials tip for quick testing -->
                     <div class="alert alert-light border small mb-4">
                         <div class="fw-bold text-dark mb-1"><i class="bi bi-key-fill text-warning me-1"></i> Quick Demo Accounts:</div>
-                        <div><strong>Customer:</strong> customer@electrohub.com / customer123</div>
-                        <div><strong>Admin:</strong> admin@electrohub.com / admin123</div>
+                        <div><strong>Customer:</strong> customer@yamoraretails.com / customer123</div>
+                        <div><strong>Admin:</strong> admin@yamoraretails.com / admin123</div>
                     </div>
 
                     <form action="{{ url_for('auth.login', next=request.args.get('next')) }}" method="POST">

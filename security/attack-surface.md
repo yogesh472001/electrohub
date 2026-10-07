@@ -1,6 +1,6 @@
 # Attack Surface Mapping
 
-This document maps all reachable attack surfaces, endpoints, authentication boundaries, and data entry vectors within the **ElectroHub** application.
+This document maps all reachable attack surfaces, endpoints, authentication boundaries, and data entry vectors within the **YAMORA Retails** application.
 
 ---
 

@@ -42,7 +42,7 @@ def register():
         db.session.commit()
 
         login_user(new_user)
-        flash(f'Welcome to ElectroHub, {new_user.full_name}! Account created successfully.', 'success')
+        flash(f'Welcome to YAMORA Retails, {new_user.full_name}! Account created successfully.', 'success')
         return redirect(url_for('shop.index'))
 
     return render_template('auth/register.html')

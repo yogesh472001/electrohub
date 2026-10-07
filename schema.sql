@@ -1,8 +1,8 @@
--- ElectroHub Electronics E-Commerce Database Schema
+-- YAMORA Retails Electronics E-Commerce Database Schema
 -- Database Engine: MySQL / MariaDB
 
-CREATE DATABASE IF NOT EXISTS electrohub_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE electrohub_db;
+CREATE DATABASE IF NOT EXISTS yamoraretails_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE yamoraretails_db;
 
 -- 1. Users Table
 CREATE TABLE IF NOT EXISTS users (
@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     address TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- 2. Categories Table
 CREATE TABLE IF NOT EXISTS categories (
