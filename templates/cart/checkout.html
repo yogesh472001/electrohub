@@ -50,8 +50,8 @@
                         </span>
                     </div>
 
-                    <div class="alert alert-info py-2 small mb-3">
-                        <i class="bi bi-info-circle-fill me-1"></i> Choose your preferred payment method. Placing order will redirect you to the <strong>PhonePe Online Gateway</strong> to complete your payment in Rupees (₹).
+                    <div class="alert alert-info py-2 small mb-3" id="payment-gateway-info-banner">
+                        <i class="bi bi-info-circle-fill me-1"></i> Placing order will redirect you to the <strong id="gateway-banner-name">PhonePe Online Gateway</strong> to complete your payment in Rupees (₹).
                     </div>
 
                     <div class="vstack gap-3 mb-4">
@@ -129,9 +129,9 @@
 
                     <!-- Online Payment Input Details Box -->
                     <div id="upi-details-box" class="p-3 bg-light border rounded-3 mb-2">
-                        <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-qr-code me-1"></i> UPI VPA / PhonePe Mobile Number</label>
-                        <input type="text" name="upi_id" class="form-control" placeholder="mobile@ybl / mobile@paytm / name@upi">
-                        <small class="text-muted mt-1 d-block">A PhonePe collect request will be sent to your app upon proceeding.</small>
+                        <label id="upi-label-text" class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-qr-code me-1"></i> UPI VPA / PhonePe Mobile Number</label>
+                        <input type="text" name="upi_id" id="upi_id_input" class="form-control" placeholder="mobile@ybl / name@upi / 9876543210">
+                        <small id="upi-help-text" class="text-muted mt-1 d-block">A payment collect request will be sent to your app upon proceeding.</small>
                     </div>
                 </div>
             </div>
@@ -178,12 +178,83 @@
                         <span class="fw-extrabold fs-4 text-primary">₹{{ "%.2f"|format(grand_total) }}</span>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6" style="background-color: #5f259f; border: none;">
-                        Proceed to PhonePe Gateway <i class="bi bi-arrow-right ms-1"></i>
+                    <button type="submit" id="btn-proceed-payment" class="btn text-white w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6" style="background-color: #5f259f; border: none;">
+                        <span id="btn-payment-text">Proceed to PhonePe Gateway</span> <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
             </div>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const paymentRadios = document.querySelectorAll('.payment-radio');
+    const btnProceed = document.getElementById('btn-proceed-payment');
+    const btnText = document.getElementById('btn-payment-text');
+    const gatewayBannerName = document.getElementById('gateway-banner-name');
+    const upiLabelText = document.getElementById('upi-label-text');
+    const upiInput = document.getElementById('upi_id_input');
+    const upiHelpText = document.getElementById('upi-help-text');
+
+    const config = {
+        'PhonePe (UPI)': {
+            name: 'PhonePe Gateway',
+            btnText: 'Proceed to PhonePe Gateway',
+            color: '#5f259f',
+            label: '<i class="bi bi-phone me-1"></i> UPI VPA / PhonePe Mobile Number',
+            placeholder: 'mobile@ybl / 9876543210',
+            help: 'A PhonePe collect request will be sent to your app upon proceeding.'
+        },
+        'Google Pay (GPay)': {
+            name: 'Google Pay (GPay) Gateway',
+            btnText: 'Proceed to Google Pay (GPay) Gateway',
+            color: '#1a73e8',
+            label: '<i class="bi bi-google me-1"></i> Google Pay UPI VPA / Mobile',
+            placeholder: 'name@okicici / 9876543210@okaxis',
+            help: 'A Google Pay notification request will be sent to your Google Pay app.'
+        },
+        'Paytm Wallet / UPI': {
+            name: 'Paytm Gateway',
+            btnText: 'Proceed to Paytm Gateway',
+            color: '#00b9f1',
+            label: '<i class="bi bi-wallet2 me-1"></i> Paytm Mobile / UPI ID',
+            placeholder: '9876543210@paytm / name@paytm',
+            help: 'Paytm Wallet balance or Paytm UPI request will be loaded on the next page.'
+        },
+        'Credit/Debit Card': {
+            name: 'Card Payment Gateway',
+            btnText: 'Proceed to Card Payment Gateway',
+            color: '#0f172a',
+            label: '<i class="bi bi-credit-card me-1"></i> Cardholder Reference Mobile',
+            placeholder: '+91 98765 43210',
+            help: 'You will enter your 16-digit Card number, Expiry, and CVV on the secure Card Gateway page.'
+        },
+        'Net Banking': {
+            name: 'Net Banking Gateway',
+            btnText: 'Proceed to Net Banking Gateway',
+            color: '#334155',
+            label: '<i class="bi bi-bank me-1"></i> Bank Account / User Reference',
+            placeholder: 'USER98721 / Mobile Number',
+            help: 'You will select your Indian Bank (HDFC, SBI, ICICI, Axis, Kotak) on the Net Banking page.'
+        }
+    };
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const selectedVal = this.value;
+            const c = config[selectedVal] || config['PhonePe (UPI)'];
+
+            if (gatewayBannerName) gatewayBannerName.textContent = c.name;
+            if (btnText) btnText.textContent = c.btnText;
+            if (btnProceed) btnProceed.style.backgroundColor = c.color;
+            if (upiLabelText) upiLabelText.innerHTML = c.label;
+            if (upiInput) upiInput.placeholder = c.placeholder;
+            if (upiHelpText) upiHelpText.textContent = c.help;
+        });
+    });
+});
+</script>
 {% endblock %}
