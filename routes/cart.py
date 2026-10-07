@@ -199,25 +199,40 @@ def place_order():
 
     db.session.commit()
 
-    # Redirect directly to PhonePe / Online Payment Gateway Page
-    return redirect(url_for('cart.payment_gateway', order_id=order.id, upi_id=upi_id))
+    # Determine specific payment gateway based on selected method
+    gateway = 'phonepe'
+    if 'Google Pay' in payment_method or 'GPay' in payment_method:
+        gateway = 'gpay'
+    elif 'Paytm' in payment_method:
+        gateway = 'paytm'
+    elif 'Card' in payment_method:
+        gateway = 'card'
+    elif 'Net Banking' in payment_method:
+        gateway = 'netbanking'
 
-@cart_bp.route('/payment-gateway/<int:order_id>')
+    # Redirect to corresponding dedicated gateway page
+    return redirect(url_for('cart.payment_gateway', gateway=gateway, order_id=order.id, upi_id=upi_id))
+
+@cart_bp.route('/payment-gateway/<gateway>/<int:order_id>')
 @login_required
-def payment_gateway(order_id):
+def payment_gateway(gateway, order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
     upi_id = request.args.get('upi_id', '')
-    return render_template('cart/payment_gateway.html', order=order, upi_id=upi_id)
+
+    if gateway not in ['phonepe', 'gpay', 'paytm', 'card', 'netbanking']:
+        gateway = 'phonepe'
+
+    return render_template('cart/payment_gateway.html', order=order, gateway=gateway, upi_id=upi_id)
 
 @cart_bp.route('/payment-callback/<int:order_id>', methods=['POST'])
 @login_required
 def payment_callback(order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
     
-    # Process payment & deduct stock
+    # Process payment & update order status
     order.status = 'Processing'
     
-    # Clear user's cart
+    # Clear user's cart and deduct stock
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     for item in cart_items:
         if item.variant:
@@ -227,5 +242,5 @@ def payment_callback(order_id):
         db.session.delete(item)
 
     db.session.commit()
-    flash(f'🎉 Payment of ₹{order.total_amount:,.2f} received via PhonePe / Payment Gateway! Order #{order.order_number} is confirmed.', 'success')
+    flash(f'🎉 Payment of ₹{order.total_amount:,.2f} received via {order.payment_method}! Order #{order.order_number} is confirmed.', 'success')
     return redirect(url_for('user.order_detail', order_id=order.id))
