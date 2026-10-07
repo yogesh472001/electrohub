@@ -12,58 +12,72 @@
     </nav>
 
     <div class="row g-4">
-        <!-- Sidebar Filter -->
+        <!-- Sidebar Filter Container -->
         <div class="col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
-                <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-funnel-fill text-primary me-2"></i> Filters</span>
-                    <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-link text-decoration-none text-muted p-0">Reset</a>
-                </h5>
+            <!-- Mobile Toggle Button for Filters (visible on mobile/tablet < 992px) -->
+            <button class="btn btn-primary d-lg-none w-100 mb-3 py-2.5 rounded-3 fw-bold shadow-sm d-flex justify-content-between align-items-center" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#filterBoxCollapse" 
+                    aria-expanded="false" 
+                    aria-controls="filterBoxCollapse">
+                <span><i class="bi bi-funnel-fill me-2"></i> Filter & Search Options</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
 
-                <form action="{{ url_for('shop.products') }}" method="GET">
-                    <!-- Search Keyword -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold small text-uppercase">Search Keyword</label>
-                        <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="e.g. OLED, MacBook...">
-                    </div>
+            <!-- Filter Box Card (Collapsible on Mobile, always open on Desktop) -->
+            <div class="collapse d-lg-block {% if q or selected_category or selected_brand or min_price or max_price %}show{% endif %}" id="filterBoxCollapse">
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+                    <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-funnel-fill text-primary me-2"></i> Filters</span>
+                        <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-link text-decoration-none text-muted p-0">Reset All</a>
+                    </h5>
 
-                    <!-- Category Filter -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold small text-uppercase">Categories</label>
-                        <select name="category" class="form-select form-select-sm">
-                            <option value="">All Categories</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Brand Filter -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold small text-uppercase">Brand</label>
-                        <select name="brand" class="form-select form-select-sm">
-                            <option value="">All Brands</option>
-                            {% for b in brands %}
-                            <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <!-- Price Filter -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold small text-uppercase">Price Range (₹)</label>
-                        <div class="d-flex gap-2 align-items-center">
-                            <input type="number" name="min_price" value="{{ min_price if min_price is not none else '' }}" class="form-control form-control-sm" placeholder="Min ₹">
-                            <span>-</span>
-                            <input type="number" name="max_price" value="{{ max_price if max_price is not none else '' }}" class="form-control form-control-sm" placeholder="Max ₹">
+                    <form action="{{ url_for('shop.products') }}" method="GET">
+                        <!-- Search Keyword -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-uppercase">Search Keyword</label>
+                            <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="e.g. OLED, MacBook...">
                         </div>
-                    </div>
 
-                    <!-- Hidden Sort Parameter -->
-                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                        <!-- Category Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-uppercase">Categories</label>
+                            <select name="category" class="form-select form-select-sm">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary w-100 rounded-3 btn-sm fw-bold">Apply Filters</button>
-                </form>
+                        <!-- Brand Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-uppercase">Brand</label>
+                            <select name="brand" class="form-select form-select-sm">
+                                <option value="">All Brands</option>
+                                {% for b in brands %}
+                                <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Price Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small text-uppercase">Price Range (₹)</label>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="number" name="min_price" value="{{ min_price if min_price is not none else '' }}" class="form-control form-control-sm" placeholder="Min ₹">
+                                <span>-</span>
+                                <input type="number" name="max_price" value="{{ max_price if max_price is not none else '' }}" class="form-control form-control-sm" placeholder="Max ₹">
+                            </div>
+                        </div>
+
+                        <!-- Hidden Sort Parameter -->
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-3 btn-sm fw-bold py-2">Apply Filters</button>
+                    </form>
+                </div>
             </div>
         </div>
 
