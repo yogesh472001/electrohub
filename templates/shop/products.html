@@ -4,44 +4,74 @@
 
 {% block content %}
 <div class="container">
-    <nav aria-label="breadcrumb" class="mb-4">
+    <!-- Breadcrumb & Page Title -->
+    <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}" class="text-decoration-none">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">Products Catalog</li>
         </ol>
     </nav>
 
-    <div class="row g-4">
-        <!-- Sidebar Filter Container -->
-        <div class="col-lg-3">
-            <!-- Mobile Toggle Button for Filters (visible on mobile/tablet < 992px) -->
-            <button class="btn btn-primary d-lg-none w-100 mb-3 py-2.5 rounded-3 fw-bold shadow-sm d-flex justify-content-between align-items-center" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#filterBoxCollapse" 
-                    aria-expanded="false" 
-                    aria-controls="filterBoxCollapse">
-                <span><i class="bi bi-funnel-fill me-2"></i> Filter & Search Options</span>
-                <i class="bi bi-chevron-down"></i>
-            </button>
+    <!-- Top Responsive Control Toolbar (Sort on Left, Filter on Right) -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <!-- LEFT SIDE: Small Sort Menu Option -->
+            <form action="{{ url_for('shop.products') }}" method="GET" class="d-flex align-items-center gap-2">
+                {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
+                {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
 
-            <!-- Filter Box Card (Collapsible on Mobile, always open on Desktop) -->
+                <label class="small fw-bold text-dark text-nowrap d-flex align-items-center gap-1 mb-0">
+                    <i class="bi bi-sort-down text-primary fs-5"></i> Sort:
+                </label>
+                <select name="sort" class="form-select form-select-sm rounded-pill border-secondary-subtle px-3 fw-medium" style="width: auto; min-width: 150px;" onchange="this.form.submit()">
+                    <option value="featured" {% if sort_by == 'featured' %}selected{% endif %}>Featured</option>
+                    <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                </select>
+            </form>
+
+            <!-- RIGHT SIDE: Small Filter Menu Option -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="small text-muted d-none d-sm-inline me-1">Showing <strong>{{ products|length }}</strong> items</span>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1 shadow-sm" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#filterBoxCollapse" 
+                        aria-expanded="false" 
+                        aria-controls="filterBoxCollapse">
+                    <i class="bi bi-funnel-fill"></i> Filter Menu
+                    {% if q or selected_category or selected_brand or min_price or max_price %}
+                    <span class="badge bg-primary text-white ms-1 rounded-circle" style="font-size: 0.65rem;">•</span>
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Filter Container (Collapsible via Right Filter Menu Button) -->
+        <div class="col-lg-3">
             <div class="collapse d-lg-block {% if q or selected_category or selected_brand or min_price or max_price %}show{% endif %}" id="filterBoxCollapse">
-                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
                     <h5 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-funnel-fill text-primary me-2"></i> Filters</span>
-                        <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-link text-decoration-none text-muted p-0">Reset All</a>
+                        <span><i class="bi bi-funnel-fill text-primary me-2"></i> Filter Options</span>
+                        <a href="{{ url_for('shop.products') }}" class="btn btn-sm btn-link text-decoration-none text-muted p-0 small">Reset All</a>
                     </h5>
 
                     <form action="{{ url_for('shop.products') }}" method="GET">
                         <!-- Search Keyword -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-semibold small text-uppercase">Search Keyword</label>
                             <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="e.g. OLED, MacBook...">
                         </div>
 
                         <!-- Category Filter -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-semibold small text-uppercase">Categories</label>
                             <select name="category" class="form-select form-select-sm">
                                 <option value="">All Categories</option>
@@ -52,7 +82,7 @@
                         </div>
 
                         <!-- Brand Filter -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-semibold small text-uppercase">Brand</label>
                             <select name="brand" class="form-select form-select-sm">
                                 <option value="">All Brands</option>
@@ -83,36 +113,6 @@
 
         <!-- Product Listing Grid -->
         <div class="col-lg-9">
-            <!-- Header Controls -->
-            <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div>
-                        <h6 class="fw-bold mb-0">Showing {{ products|length }} Products</h6>
-                        {% if q %}
-                        <small class="text-muted">Results for "<span class="text-primary">{{ q }}</span>"</small>
-                        {% endif %}
-                    </div>
-
-                    <!-- Sort Form -->
-                    <form action="{{ url_for('shop.products') }}" method="GET" class="d-flex align-items-center gap-2">
-                        {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
-                        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-                        {% if selected_brand %}<input type="hidden" name="brand" value="{{ selected_brand }}">{% endif %}
-                        {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
-                        {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
-
-                        <label class="small fw-semibold text-muted text-nowrap">Sort By:</label>
-                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="featured" {% if sort_by == 'featured' %}selected{% endif %}>Featured</option>
-                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                            <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
-                            <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
-                        </select>
-                    </form>
-                </div>
-            </div>
-
             <!-- Product Grid -->
             {% if products %}
             <div class="row g-4">
