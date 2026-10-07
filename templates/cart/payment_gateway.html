@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}PhonePe Payment Gateway | ElectroHub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- PhonePe Branded Header -->
+                <div class="p-4 text-white text-center position-relative" style="background: linear-gradient(135deg, #5f259f 0%, #3d146d 100%);">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                        <span class="fs-2 text-warning"><i class="bi bi-phone-fill"></i></span>
+                        <h3 class="fw-extrabold mb-0 tracking-tight">PhonePe Payment</h3>
+                    </div>
+                    <small class="opacity-75 text-uppercase fw-bold letter-spacing-1">Official Secure Merchant Gateway</small>
+                </div>
+
+                <!-- Payment Details Body -->
+                <div class="card-body p-4 p-md-5">
+                    <!-- Merchant & Amount Header -->
+                    <div class="text-center mb-4 pb-3 border-bottom">
+                        <span class="text-muted small text-uppercase fw-semibold d-block">Merchant</span>
+                        <h5 class="fw-bold text-dark mb-2">ElectroHub Retail India Pvt Ltd</h5>
+                        <span class="text-muted small">Order ID: <strong class="text-primary">#{{ order.order_number }}</strong></span>
+
+                        <div class="my-3 p-3 bg-light rounded-3 border">
+                            <span class="text-muted small d-block mb-1">Total Amount Payable</span>
+                            <span class="display-6 fw-extrabold text-success">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Request Notification / QR -->
+                    <div class="card bg-light border-0 p-3 rounded-3 mb-4 text-center">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                            <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
+                            <span class="fw-bold small text-dark">Payment request sent to PhonePe / UPI</span>
+                        </div>
+                        {% if upi_id %}
+                        <p class="small text-muted mb-0">UPI VPA: <strong class="text-dark">{{ upi_id }}</strong></p>
+                        {% endif %}
+                        <small class="text-muted mt-1">Please approve the payment notification on your PhonePe / GPay app or click the button below to authorize.</small>
+                    </div>
+
+                    <!-- Interactive QR Code Simulation -->
+                    <div class="text-center mb-4">
+                        <div class="p-3 bg-white border d-inline-block rounded-3 shadow-sm mb-2">
+                            <!-- Simulated QR Code SVG -->
+                            <svg width="140" height="140" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="100" height="100" fill="white"/>
+                                <rect x="10" y="10" width="25" height="25" fill="#5f259f"/>
+                                <rect x="15" y="15" width="15" height="15" fill="white"/>
+                                <rect x="18" y="18" width="9" height="9" fill="#5f259f"/>
+                                <rect x="65" y="10" width="25" height="25" fill="#5f259f"/>
+                                <rect x="70" y="15" width="15" height="15" fill="white"/>
+                                <rect x="73" y="18" width="9" height="9" fill="#5f259f"/>
+                                <rect x="10" y="65" width="25" height="25" fill="#5f259f"/>
+                                <rect x="15" y="70" width="15" height="15" fill="white"/>
+                                <rect x="18" y="73" width="9" height="9" fill="#5f259f"/>
+                                <rect x="42" y="10" width="16" height="16" fill="#5f259f"/>
+                                <rect x="42" y="32" width="16" height="16" fill="#5f259f"/>
+                                <rect x="10" y="42" width="16" height="16" fill="#5f259f"/>
+                                <rect x="65" y="42" width="25" height="16" fill="#5f259f"/>
+                                <rect x="42" y="65" width="16" height="25" fill="#5f259f"/>
+                                <rect x="65" y="70" width="25" height="20" fill="#5f259f"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <small class="badge bg-purple text-white px-3 py-1.5 rounded-pill" style="background-color: #5f259f;">
+                                <i class="bi bi-qr-code-scan me-1"></i> Scan & Pay with PhonePe App
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Payment Completion Action Form -->
+                    <form action="{{ url_for('cart.payment_callback', order_id=order.id) }}" method="POST">
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-extrabold text-uppercase shadow fs-6 mb-3" style="background-color: #10b981; border: none;">
+                            <i class="bi bi-check-circle-fill me-2"></i> Authorize & Pay ₹{{ "%.2f"|format(order.total_amount) }}
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('cart.checkout') }}" class="text-muted small text-decoration-none">
+                            <i class="bi bi-x-circle me-1"></i> Cancel & Change Payment Method
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer guarantee -->
+                <div class="bg-light p-3 text-center border-top small text-muted">
+                    <i class="bi bi-lock-fill text-success me-1"></i> 256-bit SSL Encrypted Payment Gateway by PhonePe
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -40,7 +40,7 @@
                         </div>
                     </td>
                     <td class="small fw-semibold text-secondary">{{ p.category.name }}</td>
-                    <td class="fw-bold">${{ "%.2f"|format(p.price) }}</td>
+                    <td class="fw-bold">₹{{ "%.2f"|format(p.price) }}</td>
                     <td>
                         {% if p.stock <= 5 %}
                             <span class="badge bg-danger fs-6">{{ p.stock }} (Low)</span>

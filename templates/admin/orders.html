@@ -32,7 +32,7 @@
                         <small class="text-muted">{{ o.phone }}</small>
                     </td>
                     <td class="small text-muted">{{ o.created_at.strftime('%b %d, %Y - %H:%M') }}</td>
-                    <td class="fw-extrabold text-dark">${{ "%.2f"|format(o.total_amount) }}</td>
+                    <td class="fw-extrabold text-dark">₹{{ "%.2f"|format(o.total_amount) }}</td>
                     <td>
                         {% if o.status == 'Delivered' %}
                             <span class="badge bg-success">Delivered</span>

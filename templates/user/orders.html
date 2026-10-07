@@ -24,7 +24,7 @@
                     <tr>
                         <td class="ps-4 fw-bold text-primary">#{{ order.order_number }}</td>
                         <td class="small text-muted">{{ order.created_at.strftime('%b %d, %Y - %H:%M') }}</td>
-                        <td class="fw-bold">${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td class="fw-bold">₹{{ "%.2f"|format(order.total_amount) }}</td>
                         <td>
                             {% if order.status == 'Delivered' %}
                                 <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-check-circle me-1"></i> Delivered</span>

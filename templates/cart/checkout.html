@@ -41,7 +41,7 @@
                     </div>
                 </div>
 
-                <!-- Online Payment Methods Selection Card (COD Removed, GPay/Paytm/PhonePe added) -->
+                <!-- Online Payment Methods Selection Card -->
                 <div class="card border-0 shadow-sm rounded-4 p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold mb-0"><i class="bi bi-credit-card-2-front text-primary me-2"></i> Online Payment Method</h5>
@@ -51,14 +51,29 @@
                     </div>
 
                     <div class="alert alert-info py-2 small mb-3">
-                        <i class="bi bi-info-circle-fill me-1"></i> We accept <strong>Online Payments only</strong> (GPay, Paytm, PhonePe, Cards & Net Banking). Cash on Delivery is disabled.
+                        <i class="bi bi-info-circle-fill me-1"></i> Choose your preferred payment method. Placing order will redirect you to the <strong>PhonePe Online Gateway</strong> to complete your payment in Rupees (₹).
                     </div>
 
                     <div class="vstack gap-3 mb-4">
+                        <!-- PhonePe -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
+                            <div>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="phonepe" value="PhonePe (UPI)" checked>
+                                <label class="form-check-label fw-bold text-dark" for="phonepe">
+                                    PhonePe UPI / App Direct
+                                </label>
+                            </div>
+                            <div>
+                                <span class="badge text-white px-2.5 py-1.5 fw-bold fs-6" style="background-color: #5f259f;">
+                                    <i class="bi bi-phone-fill me-1"></i> PhonePe
+                                </span>
+                            </div>
+                        </div>
+
                         <!-- Google Pay -->
                         <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
                             <div>
-                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="gpay" value="Google Pay (GPay)" checked>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="gpay" value="Google Pay (GPay)">
                                 <label class="form-check-label fw-bold text-dark" for="gpay">
                                     Google Pay (GPay)
                                 </label>
@@ -66,21 +81,6 @@
                             <div class="d-flex align-items-center gap-1">
                                 <span class="badge bg-light text-dark border font-monospace fw-extrabold px-2 py-1 fs-6">
                                     <span class="text-primary">G</span><span class="text-danger">P</span><span class="text-warning">a</span><span class="text-success">y</span>
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- PhonePe -->
-                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
-                            <div>
-                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="phonepe" value="PhonePe (UPI)">
-                                <label class="form-check-label fw-bold text-dark" for="phonepe">
-                                    PhonePe UPI
-                                </label>
-                            </div>
-                            <div>
-                                <span class="badge bg-purple text-white px-2 py-1 fw-bold fs-6" style="background-color: #5f259f;">
-                                    <i class="bi bi-phone-fill me-1"></i> PhonePe
                                 </span>
                             </div>
                         </div>
@@ -129,9 +129,9 @@
 
                     <!-- Online Payment Input Details Box -->
                     <div id="upi-details-box" class="p-3 bg-light border rounded-3 mb-2">
-                        <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-qr-code me-1"></i> UPI VPA / Mobile Number</label>
-                        <input type="text" name="upi_id" class="form-control" placeholder="yourname@okicici / 9876543210@paytm">
-                        <small class="text-muted mt-1 d-block">A payment request will be pushed directly to your UPI app.</small>
+                        <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-qr-code me-1"></i> UPI VPA / PhonePe Mobile Number</label>
+                        <input type="text" name="upi_id" class="form-control" placeholder="mobile@ybl / mobile@paytm / name@upi">
+                        <small class="text-muted mt-1 d-block">A PhonePe collect request will be sent to your app upon proceeding.</small>
                     </div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
             <!-- Order Items Summary -->
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h5 class="fw-bold mb-3">Order Items ({{ cart_items|length }})</h5>
+                    <h5 class="fw-bold mb-3">Order Summary ({{ cart_items|length }})</h5>
 
                     <div class="list-group list-group-flush mb-3">
                         {% for item in cart_items %}
@@ -151,10 +151,10 @@
                                     {% if item.selected_color %}
                                     <small class="badge bg-light text-dark border">{{ item.selected_color }}</small>
                                     {% endif %}
-                                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ "%.2f"|format(item.unit_price) }}</small>
+                                    <small class="text-muted">Qty: {{ item.quantity }} × ₹{{ "%.2f"|format(item.unit_price) }}</small>
                                 </div>
                             </div>
-                            <span class="fw-bold small">${{ "%.2f"|format(item.subtotal) }}</span>
+                            <span class="fw-bold small">₹{{ "%.2f"|format(item.subtotal) }}</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -162,24 +162,24 @@
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Subtotal</span>
-                        <span>${{ "%.2f"|format(subtotal) }}</span>
+                        <span>₹{{ "%.2f"|format(subtotal) }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Tax (8%)</span>
-                        <span>${{ "%.2f"|format(tax) }}</span>
+                        <span class="text-muted">GST Tax (18%)</span>
+                        <span>₹{{ "%.2f"|format(tax) }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Shipping</span>
-                        <span class="text-success">{% if shipping == 0.0 %}FREE{% else %}${{ "%.2f"|format(shipping) }}{% endif %}</span>
+                        <span class="text-success">{% if shipping == 0.0 %}FREE{% else %}₹{{ "%.2f"|format(shipping) }}{% endif %}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
-                        <span class="fw-bold fs-5">Total Online Payment</span>
-                        <span class="fw-extrabold fs-4 text-primary">${{ "%.2f"|format(grand_total) }}</span>
+                        <span class="fw-bold fs-5">Total Payable</span>
+                        <span class="fw-extrabold fs-4 text-primary">₹{{ "%.2f"|format(grand_total) }}</span>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6">
-                        <i class="bi bi-lock-fill me-1"></i> Pay Now & Complete Order
+                    <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6" style="background-color: #5f259f; border: none;">
+                        Proceed to PhonePe Gateway <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
             </div>

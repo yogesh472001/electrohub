@@ -4,19 +4,19 @@ from models.user import User
 from models.product import Category, Product, ProductVariant
 
 def seed_database():
-    """Seeds initial categories, products with color variants, and default users."""
+    """Seeds initial categories, products with INR prices & color variants, and default users."""
     if User.query.first():
-        return # Already seeded
+        return
 
-    print("Seeding initial ElectroHub database with color variants...")
+    print("Seeding initial ElectroHub database with INR (₹) prices...")
 
     # Create Default Users
     admin = User(
         full_name="ElectroHub Admin",
         email="admin@electrohub.com",
         role="admin",
-        phone="+1 800-555-TECH",
-        address="100 Technology Plaza, Tech City, CA"
+        phone="+91 98765 43210",
+        address="100 Technology Plaza, Bandra Kurla Complex, Mumbai, MH"
     )
     admin.set_password("admin123")
 
@@ -24,8 +24,8 @@ def seed_database():
         full_name="Alex Techie",
         email="customer@electrohub.com",
         role="user",
-        phone="+1 555-019-2834",
-        address="742 Evergreen Terrace, Springfield, OR"
+        phone="+91 98765 01234",
+        address="742 Evergreen Heights, Indiranagar, Bengaluru, KA"
     )
     customer.set_password("customer123")
 
@@ -50,15 +50,15 @@ def seed_database():
         db.session.flush()
         cat_map[cat.slug] = cat.id
 
-    # Sample Products with Color Variants
+    # Products with Indian Rupee (₹) Pricing
     p1 = Product(
         title='Apple MacBook Pro 16" M3 Max',
         slug="apple-macbook-pro-16-m3-max",
         brand="Apple",
         category_id=cat_map["laptops"],
-        price=3499.00,
-        original_price=3799.00,
-        discount_percent=8,
+        price=249900.00,
+        original_price=269900.00,
+        discount_percent=7,
         stock=15,
         rating=4.9,
         is_featured=True,
@@ -74,7 +74,7 @@ def seed_database():
         color_name="Space Black",
         color_code="#1e1e1e",
         image_url="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
-        price=3499.00,
+        price=249900.00,
         stock=10,
         description="Deep dark Space Black anodized finish with anti-fingerprint seal."
     )
@@ -83,7 +83,7 @@ def seed_database():
         color_name="Silver Aluminum",
         color_code="#e3e4e5",
         image_url="https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&auto=format&fit=crop&q=80",
-        price=3499.00,
+        price=249900.00,
         stock=5,
         description="Classic sleek Silver metallic enclosure."
     )
@@ -94,8 +94,8 @@ def seed_database():
         slug="iphone-15-pro-max-512gb",
         brand="Apple",
         category_id=cat_map["mobiles"],
-        price=1399.00,
-        original_price=1499.00,
+        price=134900.00,
+        original_price=144900.00,
         discount_percent=7,
         stock=20,
         rating=4.9,
@@ -112,7 +112,7 @@ def seed_database():
         color_name="Natural Titanium",
         color_code="#9a958e",
         image_url="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80",
-        price=1399.00,
+        price=134900.00,
         stock=8,
         description="Raw metallic Natural Titanium with micro-blasted texture."
     )
@@ -121,7 +121,7 @@ def seed_database():
         color_name="White Titanium",
         color_code="#f3f3f3",
         image_url="https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&auto=format&fit=crop&q=80",
-        price=1429.00, # Price difference for color!
+        price=137900.00,
         stock=6,
         description="Bright White Titanium with ceramic shield front glass."
     )
@@ -130,7 +130,7 @@ def seed_database():
         color_name="Blue Titanium",
         color_code="#323e4d",
         image_url="https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=800&auto=format&fit=crop&q=80",
-        price=1399.00,
+        price=134900.00,
         stock=6,
         description="Rich deep navy Blue Titanium finish."
     )
@@ -141,9 +141,9 @@ def seed_database():
         slug="sony-wh-1000xm5",
         brand="Sony",
         category_id=cat_map["headphones"],
-        price=398.00,
-        original_price=449.99,
-        discount_percent=11,
+        price=29990.00,
+        original_price=34990.00,
+        discount_percent=14,
         stock=30,
         rating=4.8,
         is_featured=True,
@@ -159,7 +159,7 @@ def seed_database():
         color_name="Matte Black",
         color_code="#111111",
         image_url="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
-        price=398.00,
+        price=29990.00,
         stock=15,
         description="Sleek soft-touch Matte Black color edition."
     )
@@ -168,7 +168,7 @@ def seed_database():
         color_name="Silver Cream",
         color_code="#e6e2dd",
         image_url="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80",
-        price=398.00,
+        price=29990.00,
         stock=10,
         description="Elegant Off-White Silver Cream edition with copper accents."
     )
@@ -177,21 +177,20 @@ def seed_database():
         color_name="Midnight Blue (Limited Edition)",
         color_code="#1c2841",
         image_url="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&auto=format&fit=crop&q=80",
-        price=419.00, # Custom higher price for limited edition color!
+        price=31990.00,
         stock=5,
         description="Exclusive Midnight Blue limited collector color edition."
     )
     db.session.add_all([v3_1, v3_2, v3_3])
 
-    # Other products...
     p4 = Product(
         title="Logitech MX Master 3S Mouse",
         slug="logitech-mx-master-3s",
         brand="Logitech",
         category_id=cat_map["mouse"],
-        price=99.99,
-        original_price=119.99,
-        discount_percent=16,
+        price=8995.00,
+        original_price=10995.00,
+        discount_percent=18,
         stock=40,
         rating=4.9,
         is_featured=True,
@@ -206,9 +205,9 @@ def seed_database():
         slug="lg-ultragear-27-4k-oled",
         brand="LG",
         category_id=cat_map["monitors"],
-        price=999.99,
-        original_price=1199.99,
-        discount_percent=16,
+        price=84990.00,
+        original_price=99990.00,
+        discount_percent=15,
         stock=6,
         rating=4.9,
         is_featured=True,
@@ -219,4 +218,4 @@ def seed_database():
     db.session.add(p5)
 
     db.session.commit()
-    print("Database successfully seeded with color variants!")
+    print("Database successfully seeded with INR (₹) prices!")

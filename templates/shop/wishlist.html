@@ -23,7 +23,7 @@
                     <div class="product-brand">{{ item.product.brand }}</div>
                     <a href="{{ url_for('shop.product_detail', slug=item.product.slug) }}" class="product-title">{{ item.product.title }}</a>
                     <div class="price-box mb-3">
-                        <span class="current-price">${{ "%.2f"|format(item.product.price) }}</span>
+                        <span class="current-price">₹{{ "%.2f"|format(item.product.price) }}</span>
                     </div>
                     <form action="{{ url_for('cart.add_to_cart', product_id=item.product.id) }}" method="POST" class="ajax-add-to-cart">
                         <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold btn-sm py-2">

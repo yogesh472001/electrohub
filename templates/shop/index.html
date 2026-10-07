@@ -33,7 +33,7 @@
                 <div class="fs-2 text-primary"><i class="bi bi-truck"></i></div>
                 <div>
                     <h6 class="fw-bold mb-0">Free Shipping</h6>
-                    <small class="text-muted">On orders over $499</small>
+                    <small class="text-muted">On orders over ₹999</small>
                 </div>
             </div>
         </div>
@@ -113,9 +113,9 @@
                             <i class="bi bi-star-fill"></i> {{ product.rating }} <span class="text-muted">({{ product.stock }} in stock)</span>
                         </div>
                         <div class="price-box mb-3">
-                            <span class="current-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="current-price">₹{{ "%.2f"|format(product.price) }}</span>
                             {% if product.original_price %}
-                            <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                            <span class="original-price">₹{{ "%.2f"|format(product.original_price) }}</span>
                             {% endif %}
                         </div>
                         <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">
@@ -156,9 +156,9 @@
                             <i class="bi bi-star-fill"></i> {{ product.rating }}
                         </div>
                         <div class="price-box mb-3">
-                            <span class="current-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="current-price">₹{{ "%.2f"|format(product.price) }}</span>
                             {% if product.original_price %}
-                            <span class="original-price">${{ "%.2f"|format(product.original_price) }}</span>
+                            <span class="original-price">₹{{ "%.2f"|format(product.original_price) }}</span>
                             {% endif %}
                         </div>
                         <form action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" method="POST" class="ajax-add-to-cart">

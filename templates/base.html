@@ -20,11 +20,11 @@
     <div class="top-header">
         <div class="container d-flex justify-content-between align-items-center">
             <div>
-                <i class="bi bi-truck text-info me-1"></i> Free Express Shipping on orders over <strong>$499</strong>
+                <i class="bi bi-truck text-info me-1"></i> Free Express Shipping on orders over <strong>₹999</strong>
                 <span class="ms-3 d-none d-md-inline"><i class="bi bi-shield-check text-success me-1"></i> 2-Year Full Tech Warranty</span>
             </div>
             <div>
-                <span class="me-3"><i class="bi bi-telephone me-1"></i> 1-800-ELECTRO</span>
+                <span class="me-3"><i class="bi bi-telephone me-1"></i> 1800-ELECTRO</span>
                 {% if current_user.is_authenticated and current_user.is_admin() %}
                     <a href="{{ url_for('admin.dashboard') }}" class="badge bg-warning text-dark text-decoration-none">
                         <i class="bi bi-speedometer2"></i> Admin Panel
@@ -171,18 +171,19 @@
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h6 class="footer-heading">Customer Care</h6>
-                    <p class="small text-muted mb-2"><i class="bi bi-geo-alt text-info me-2"></i> 100 Technology Plaza, Tech City, CA</p>
+                    <p class="small text-muted mb-2"><i class="bi bi-geo-alt text-info me-2"></i> Bandra Kurla Complex, Mumbai, MH</p>
                     <p class="small text-muted mb-2"><i class="bi bi-envelope text-info me-2"></i> support@electrohub.com</p>
                     <p class="small text-muted"><i class="bi bi-headset text-info me-2"></i> 24/7 Dedicated Tech Support</p>
                 </div>
             </div>
             <hr class="border-secondary my-4">
             <div class="d-md-flex justify-content-between align-items-center text-center small text-muted">
-                <p class="mb-2 mb-md-0">&copy; 2026 ElectroHub Retail Inc. All rights reserved.</p>
+                <p class="mb-2 mb-md-0">&copy; 2026 ElectroHub Retail India Pvt Ltd. All rights reserved.</p>
                 <div>
-                    <i class="bi bi-credit-card-2-front fs-4 me-2"></i>
-                    <i class="bi bi-paypal fs-4 me-2"></i>
-                    <i class="bi bi-shield-check fs-4"></i>
+                    <span class="badge bg-light text-dark border me-1 font-monospace fw-extrabold"><span class="text-primary">G</span><span class="text-danger">P</span><span class="text-warning">a</span><span class="text-success">y</span></span>
+                    <span class="badge bg-purple text-white me-1 fw-bold" style="background-color: #5f259f;">PhonePe</span>
+                    <span class="badge bg-info text-dark me-1 fw-bold">Paytm</span>
+                    <i class="bi bi-shield-check fs-4 text-success align-middle"></i>
                 </div>
             </div>
         </div>

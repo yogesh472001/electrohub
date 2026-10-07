@@ -73,12 +73,12 @@
                                             {% if item.selected_color %}
                                             <span class="badge bg-info-subtle text-info border border-info-subtle"><i class="bi bi-palette me-1"></i> Color: {{ item.selected_color }}</span>
                                             {% endif %}
-                                            <div class="text-muted small">Unit Price: ${{ "%.2f"|format(item.price) }}</div>
+                                            <div class="text-muted small">Unit Price: ₹{{ "%.2f"|format(item.price) }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="fw-bold">Qty: {{ item.quantity }}</td>
-                                <td class="text-end pe-4 fw-extrabold text-primary">${{ "%.2f"|format(item.subtotal) }}</td>
+                                <td class="text-end pe-4 fw-extrabold text-primary">₹{{ "%.2f"|format(item.subtotal) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -102,7 +102,7 @@
                 </div>
                 <div class="d-flex justify-content-between small mb-3">
                     <span class="text-muted">Total Paid:</span>
-                    <span class="fw-bold text-success fs-5">${{ "%.2f"|format(order.total_amount) }}</span>
+                    <span class="fw-bold text-success fs-5">₹{{ "%.2f"|format(order.total_amount) }}</span>
                 </div>
 
                 <a href="{{ url_for('user.orders') }}" class="btn btn-outline-secondary w-100 rounded-pill btn-sm">

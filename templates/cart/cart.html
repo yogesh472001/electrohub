@@ -37,13 +37,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="fw-semibold">${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td class="fw-semibold">₹{{ "%.2f"|format(item.unit_price) }}</td>
                                 <td>
                                     <form action="{{ url_for('cart.update_cart', item_id=item.id) }}" method="POST" class="d-flex align-items-center gap-1">
                                         <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.variant.stock if item.variant else item.product.stock }}" class="form-control form-control-sm text-center" style="width: 65px;" onchange="this.form.submit()">
                                     </form>
                                 </td>
-                                <td class="text-end fw-bold text-dark">${{ "%.2f"|format(item.subtotal) }}</td>
+                                <td class="text-end fw-bold text-dark">₹{{ "%.2f"|format(item.subtotal) }}</td>
                                 <td class="text-center">
                                     <form action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}" method="POST">
                                         <button type="submit" class="btn btn-link text-danger p-0" title="Remove item">
@@ -68,27 +68,27 @@
                 <h5 class="fw-bold mb-3">Order Summary</h5>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Subtotal</span>
-                    <span class="fw-semibold">${{ "%.2f"|format(subtotal) }}</span>
+                    <span class="fw-semibold">₹{{ "%.2f"|format(subtotal) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Estimated Tax (8%)</span>
-                    <span class="fw-semibold">${{ "%.2f"|format(tax) }}</span>
+                    <span class="text-muted">GST Tax (18%)</span>
+                    <span class="fw-semibold">₹{{ "%.2f"|format(tax) }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
                     <span class="text-muted">Shipping</span>
-                    <span class="fw-semibold text-success">{% if shipping == 0.0 %}FREE{% else %}${{ "%.2f"|format(shipping) }}{% endif %}</span>
+                    <span class="fw-semibold text-success">{% if shipping == 0.0 %}FREE{% else %}₹{{ "%.2f"|format(shipping) }}{% endif %}</span>
                 </div>
 
-                {% if subtotal < 499 %}
+                {% if subtotal < 999 %}
                 <div class="alert alert-info py-2 small mb-3">
-                    <i class="bi bi-info-circle me-1"></i> Add <strong>${{ "%.2f"|format(499 - subtotal) }}</strong> more to unlock <strong>FREE Express Shipping!</strong>
+                    <i class="bi bi-info-circle me-1"></i> Add <strong>₹{{ "%.2f"|format(999 - subtotal) }}</strong> more to unlock <strong>FREE Express Shipping!</strong>
                 </div>
                 {% endif %}
 
                 <hr>
                 <div class="d-flex justify-content-between mb-4">
                     <span class="fw-bold fs-5">Grand Total</span>
-                    <span class="fw-extrabold fs-4 text-primary">${{ "%.2f"|format(grand_total) }}</span>
+                    <span class="fw-extrabold fs-4 text-primary">₹{{ "%.2f"|format(grand_total) }}</span>
                 </div>
 
                 <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary w-100 py-2.5 rounded-3 fw-bold text-uppercase shadow-sm">

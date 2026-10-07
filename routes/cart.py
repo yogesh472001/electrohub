@@ -13,8 +13,8 @@ cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 def view_cart():
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     subtotal = sum(item.subtotal for item in cart_items)
-    shipping = 0.0 if subtotal > 499 or subtotal == 0 else 25.0
-    tax = round(subtotal * 0.08, 2)
+    shipping = 0.0 if subtotal > 999 or subtotal == 0 else 99.0
+    tax = round(subtotal * 0.18, 2) # GST 18%
     grand_total = subtotal + shipping + tax
 
     return render_template(
@@ -117,8 +117,8 @@ def checkout():
         return redirect(url_for('shop.products'))
 
     subtotal = sum(item.subtotal for item in cart_items)
-    shipping = 0.0 if subtotal > 499 else 25.0
-    tax = round(subtotal * 0.08, 2)
+    shipping = 0.0 if subtotal > 999 else 99.0
+    tax = round(subtotal * 0.18, 2)
     grand_total = subtotal + shipping + tax
 
     return render_template(
@@ -144,15 +144,16 @@ def place_order():
     shipping_address = request.form.get('shipping_address', '').strip()
     city = request.form.get('city', '').strip()
     zip_code = request.form.get('zip_code', '').strip()
-    payment_method = request.form.get('payment_method', 'Credit Card')
+    payment_method = request.form.get('payment_method', 'PhonePe (UPI)')
+    upi_id = request.form.get('upi_id', '').strip()
 
     if not full_name or not shipping_address or not city or not zip_code or not phone:
         flash('Please fill in all required shipping details.', 'danger')
         return redirect(url_for('cart.checkout'))
 
     subtotal = sum(item.subtotal for item in cart_items)
-    shipping = 0.0 if subtotal > 499 else 25.0
-    tax = round(subtotal * 0.08, 2)
+    shipping = 0.0 if subtotal > 999 else 99.0
+    tax = round(subtotal * 0.18, 2)
     grand_total = subtotal + shipping + tax
 
     # Stock check
@@ -195,16 +196,36 @@ def place_order():
             thumbnail=thumb
         )
         db.session.add(order_item)
-        
-        # Deduct stock
+
+    db.session.commit()
+
+    # Redirect directly to PhonePe / Online Payment Gateway Page
+    return redirect(url_for('cart.payment_gateway', order_id=order.id, upi_id=upi_id))
+
+@cart_bp.route('/payment-gateway/<int:order_id>')
+@login_required
+def payment_gateway(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    upi_id = request.args.get('upi_id', '')
+    return render_template('cart/payment_gateway.html', order=order, upi_id=upi_id)
+
+@cart_bp.route('/payment-callback/<int:order_id>', methods=['POST'])
+@login_required
+def payment_callback(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    
+    # Process payment & deduct stock
+    order.status = 'Processing'
+    
+    # Clear user's cart
+    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    for item in cart_items:
         if item.variant:
             item.variant.stock -= item.quantity
         else:
             item.product.stock -= item.quantity
-        
-        # Remove from cart
         db.session.delete(item)
 
     db.session.commit()
-    flash(f'Success! Your order #{order.order_number} has been placed.', 'success')
+    flash(f'🎉 Payment of ₹{order.total_amount:,.2f} received via PhonePe / Payment Gateway! Order #{order.order_number} is confirmed.', 'success')
     return redirect(url_for('user.order_detail', order_id=order.id))
