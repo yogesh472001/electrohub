@@ -3,15 +3,26 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'yamora-retails-super-secret-key-2026')
     
-    # MySQL connection string format: mysql+pymysql://<user>:<password>@<host>:<port>/<dbname>
+    # Production Environment
+    ENV = os.environ.get('FLASK_ENV', 'production')
+    DEBUG = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+
+    # Security Cookie Options
+    SESSION_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    if os.environ.get('SECURE_COOKIES', 'false').lower() == 'true':
+        SESSION_COOKIE_SECURE = True
+        REMEMBER_COOKIE_SECURE = True
+    
+    # MySQL Connection Parameters
     MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'password')
     MYSQL_HOST = os.environ.get('MYSQL_HOST', '127.0.0.1')
     MYSQL_PORT = os.environ.get('MYSQL_PORT', '3306')
     MYSQL_DB = os.environ.get('MYSQL_DB', 'yamoraretails_db')
 
-    # Default to SQLite for immediate local execution if MySQL environment variable USE_MYSQL is not set to 'true'
-    # Or set USE_MYSQL=true in env to force MySQL connection
+    # Default to SQLite for zero-config execution if USE_MYSQL != 'true'
     USE_MYSQL = os.environ.get('USE_MYSQL', 'false').lower() == 'true'
     
     if USE_MYSQL:
