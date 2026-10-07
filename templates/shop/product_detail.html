@@ -3,86 +3,142 @@
 {% block title %}{{ product.title }} | ElectroHub{% endblock %}
 
 {% block content %}
-<div class="container py-3">
+<div class="container py-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}" class="text-decoration-none">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('shop.products', category=product.category.slug) }}" class="text-decoration-none">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.products', category=product.category.slug) }}" class="text-decoration-none text-muted">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">{{ product.title }}</li>
         </ol>
     </nav>
 
     <!-- Main Product Card -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
-        <div class="row g-4 align-items-center">
-            <!-- Product Image Gallery / Photo -->
-            <div class="col-md-6 text-center position-relative">
-                {% if product.discount_percent > 0 %}
-                <span class="badge bg-danger position-absolute top-0 start-0 p-2 fs-6 rounded-3">-{{ product.discount_percent }}% OFF</span>
-                {% endif %}
-                <img id="main-product-img" src="{{ product.thumbnail }}" alt="{{ product.title }}" class="img-fluid rounded-4 p-3 shadow-sm transition-all" style="max-height: 420px; object-fit: contain;">
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
+        <div class="row g-4 align-items-start">
+            
+            <!-- LEFT COLUMN: MULTIPLE PHOTO GALLERY & MAIN IMAGE -->
+            <div class="col-lg-6">
+                <!-- Main Display Photo Box -->
+                <div class="position-relative text-center bg-light rounded-4 p-4 mb-3 border overflow-hidden d-flex align-items-center justify-content-center" style="min-height: 380px;">
+                    {% if product.discount_percent > 0 %}
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 fs-6 rounded-pill shadow-sm">
+                        <i class="bi bi-tag-fill me-1"></i> {{ product.discount_percent }}% OFF
+                    </span>
+                    {% endif %}
+                    
+                    <img id="main-product-img" 
+                         src="{{ product.thumbnail }}" 
+                         alt="{{ product.title }}" 
+                         class="img-fluid rounded-3 transition-all" 
+                         style="max-height: 380px; object-fit: contain; transition: all 0.3s ease;">
+                </div>
+
+                <!-- Multiple Photo Gallery Thumbnails Track -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted text-uppercase mb-2 d-flex align-items-center gap-1">
+                        <i class="bi bi-images text-primary"></i> Product Photo Gallery (<span id="gallery-count"></span> Photos):
+                    </label>
+                    <div class="d-flex align-items-center gap-2 overflow-auto py-1 px-1" id="product-thumbnails-track" style="scrollbar-width: thin;">
+                        <!-- Main Thumbnail -->
+                        <div class="thumbnail-item border rounded-3 p-1 cursor-pointer bg-white active border-primary shadow-sm"
+                             data-img-url="{{ product.thumbnail }}"
+                             data-variant-id=""
+                             style="width: 75px; height: 75px; flex-shrink: 0; cursor: pointer; transition: all 0.2s;">
+                            <img src="{{ product.thumbnail }}" alt="Main View" class="w-100 h-100 rounded-2" style="object-fit: contain;">
+                        </div>
+
+                        <!-- Color Variant Thumbnails -->
+                        {% if product.variants %}
+                        {% for v in product.variants %}
+                        <div class="thumbnail-item border rounded-3 p-1 cursor-pointer bg-white"
+                             data-img-url="{{ v.image_url if v.image_url else product.thumbnail }}"
+                             data-variant-id="{{ v.id }}"
+                             title="{{ v.color_name }}"
+                             style="width: 75px; height: 75px; flex-shrink: 0; cursor: pointer; transition: all 0.2s;">
+                            <img src="{{ v.image_url if v.image_url else product.thumbnail }}" alt="{{ v.color_name }}" class="w-100 h-100 rounded-2" style="object-fit: contain;">
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <small class="text-muted mt-1 d-block" style="font-size: 0.78rem;">
+                        <i class="bi bi-hand-index-thumb text-primary me-1"></i> Click any photo thumbnail or color option to view angles & details.
+                    </small>
+                </div>
             </div>
 
-            <!-- Product Specs & Color Variant Controls -->
-            <div class="col-md-6">
-                <span class="badge bg-secondary text-uppercase mb-2">{{ product.brand }}</span>
-                <h2 class="fw-bold mb-2 text-dark">{{ product.title }}</h2>
+            <!-- RIGHT COLUMN: PRODUCT SPECS, MULTIPLE COLOUR SELECTOR, PRICING & ACTIONS -->
+            <div class="col-lg-6">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="badge bg-secondary text-uppercase px-2.5 py-1.5 fw-bold">{{ product.brand }}</span>
+                    <span class="small text-muted"><i class="bi bi-qr-code-scan me-1"></i> SKU: EH-PROD-{{ product.id }}</span>
+                </div>
 
-                <!-- Rating & Model -->
+                <h2 class="fw-bold mb-2 text-dark lh-sm">{{ product.title }}</h2>
+
+                <!-- Rating & Reviews -->
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="rating-stars mb-0 fs-5">
+                    <div class="rating-stars text-warning fs-5">
                         <i class="bi bi-star-fill"></i>
-                        <span class="fw-bold text-dark fs-6 ms-1">{{ product.rating }}</span>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
                     </div>
+                    <span class="fw-bold text-dark">{{ product.rating }}</span>
                     <span class="text-muted">•</span>
-                    <span class="small text-muted">Model: EH-PROD-{{ product.id }}</span>
+                    <span class="small text-success fw-semibold"><i class="bi bi-shield-check me-1"></i> Verified ElectroHub Product</span>
                 </div>
 
                 <!-- Price Box -->
-                <div class="d-flex align-items-baseline gap-3 mb-4 p-3 bg-light rounded-3">
+                <div class="d-flex align-items-baseline gap-3 mb-4 p-3 bg-light rounded-4 border">
                     <span id="display-price" class="display-6 fw-extrabold text-primary">₹{{ "%.2f"|format(product.price) }}</span>
                     {% if product.original_price %}
                     <span class="fs-5 text-muted text-decoration-line-through">₹{{ "%.2f"|format(product.original_price) }}</span>
-                    <span class="badge bg-success">Save ₹{{ "%.2f"|format(product.original_price - product.price) }}</span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1.5 rounded-pill">
+                        Save ₹{{ "%.2f"|format(product.original_price - product.price) }}
+                    </span>
                     {% endif %}
                 </div>
 
-                <!-- COLOR VARIANTS SELECTOR -->
+                <!-- MULTIPLE COLOUR OPTIONS SELECTOR -->
                 {% if product.variants %}
-                <div class="mb-4 p-3 border rounded-3 bg-white">
-                    <label class="form-label fw-bold small text-uppercase mb-2 d-flex justify-content-between">
-                        <span><i class="bi bi-palette text-primary me-1"></i> Select Color: <strong id="selected-color-label" class="text-dark">{{ product.variants[0].color_name }}</strong></span>
-                    </label>
-                    
-                    <div class="d-flex flex-wrap gap-2" id="color-swatches-container">
+                <div class="mb-4 p-3.5 border rounded-4 bg-white shadow-xs">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label fw-bold text-uppercase small mb-0 text-dark">
+                            <i class="bi bi-palette-fill text-primary me-1.5"></i> Select Color Option:
+                        </label>
+                        <span id="selected-color-label" class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-bold fs-6">
+                            {{ product.variants[0].color_name }}
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2.5 mt-2" id="color-swatches-container">
                         {% for v in product.variants %}
                         <button type="button" 
-                                class="btn color-swatch-btn p-2 rounded-3 border d-flex align-items-center gap-2 {% if loop.first %}active border-primary bg-light fw-bold{% endif %}"
+                                class="btn color-swatch-btn p-2 rounded-3 border d-flex align-items-center gap-2 transition-all {% if loop.first %}active border-primary bg-primary-subtle fw-bold shadow-sm{% else %}bg-light text-dark{% endif %}"
                                 data-variant-id="{{ v.id }}"
                                 data-color-name="{{ v.color_name }}"
                                 data-image-url="{{ v.image_url if v.image_url else product.thumbnail }}"
                                 data-price="{{ "%.2f"|format(v.effective_price) }}"
                                 data-stock="{{ v.stock }}"
                                 data-desc="{{ v.description or '' }}">
-                            <span class="color-dot rounded-circle border d-inline-block" style="width: 20px; height: 20px; background-color: {{ v.color_code }};"></span>
+                            <span class="color-dot rounded-circle border shadow-xs d-inline-block" style="width: 22px; height: 22px; background-color: {{ v.color_code }}; border-color: rgba(0,0,0,0.2) !important;"></span>
                             <span class="small">{{ v.color_name }}</span>
+                            <span class="badge bg-white text-dark border small ms-1" style="font-size: 0.7rem;">₹{{ "%.0f"|format(v.effective_price) }}</span>
                         </button>
                         {% endfor %}
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Description & Color Note -->
-                <p id="product-description" class="text-muted mb-4">{{ product.description }}</p>
-                <div id="variant-desc-note" class="alert alert-info py-2 small mb-4 {% if not (product.variants and product.variants[0].description) %}d-none{% endif %}">
-                    <i class="bi bi-info-circle me-1"></i> <span id="variant-desc-text">{{ product.variants[0].description if (product.variants and product.variants[0].description) else '' }}</span>
-                </div>
-
-                <!-- Stock Badge -->
-                <div class="mb-4">
+                <!-- Stock & Availability Badge -->
+                <div class="mb-4 d-flex align-items-center gap-2">
                     <span id="stock-badge" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6 rounded-pill">
                         <i class="bi bi-check-circle-fill me-1"></i> In Stock (<span id="stock-count">{{ product.variants[0].stock if product.variants else product.stock }}</span> units remaining)
+                    </span>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 fs-6 rounded-pill">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> Ready to Dispatch
                     </span>
                 </div>
 
@@ -91,13 +147,13 @@
                     <input type="hidden" name="variant_id" id="selected-variant-id" value="{{ product.variants[0].id if product.variants else '' }}">
                     
                     <div class="d-flex gap-3 align-items-center flex-wrap">
-                        <div class="input-group style-qty" style="width: 130px;">
+                        <div class="input-group style-qty shadow-sm rounded-3 overflow-hidden" style="width: 130px;">
                             <button type="button" class="btn btn-outline-secondary btn-qty-minus"><i class="bi bi-dash"></i></button>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control text-center fw-bold">
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control text-center fw-bold bg-white">
                             <button type="button" class="btn btn-outline-secondary btn-qty-plus"><i class="bi bi-plus"></i></button>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg rounded-3 px-4 fw-bold flex-grow-1">
-                            <i class="bi bi-bag-plus me-2"></i> Add to Cart
+                        <button type="submit" class="btn btn-primary btn-lg rounded-3 px-4 fw-bold flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-bag-plus-fill"></i> Add to Cart
                         </button>
                         <button type="button" class="btn btn-outline-danger btn-lg rounded-3 btn-wishlist-toggle {% if in_wishlist %}active{% endif %}" data-url="{{ url_for('shop.toggle_wishlist', product_id=product.id) }}" title="Wishlist">
                             <i class="bi bi-heart{% if in_wishlist %}-fill text-danger{% endif %}"></i>
@@ -105,52 +161,161 @@
                     </div>
                 </form>
 
-                <!-- Guarantees List -->
+                <!-- Value Highlights -->
                 <div class="row g-2 border-top pt-3 text-muted small">
-                    <div class="col-6"><i class="bi bi-truck text-primary me-2"></i> Fast Express Shipping</div>
-                    <div class="col-6"><i class="bi bi-shield-check text-success me-2"></i> 2-Year Official Warranty</div>
-                    <div class="col-6"><i class="bi bi-arrow-counterclockwise text-warning me-2"></i> 30-Day Money Back</div>
-                    <div class="col-6"><i class="bi bi-credit-card text-info me-2"></i> Secure Online Payment</div>
+                    <div class="col-6"><i class="bi bi-truck text-primary me-2 fs-6"></i> Free Express Shipping across India</div>
+                    <div class="col-6"><i class="bi bi-shield-check text-success me-2 fs-6"></i> 2-Year Official Brand Warranty</div>
+                    <div class="col-6"><i class="bi bi-arrow-counterclockwise text-warning me-2 fs-6"></i> 7-Day Replacement Policy</div>
+                    <div class="col-6"><i class="bi bi-lock-fill text-info me-2 fs-6"></i> 100% Secure UPI & Online Pay</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Technical Specifications Table -->
-    {% if product.specifications %}
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
-        <h4 class="fw-bold mb-3"><i class="bi bi-sliders text-primary me-2"></i> Technical Specifications</h4>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
-                <tbody>
-                    {% for key, val in product.specifications.items() %}
-                    <tr>
-                        <th style="width: 30%;" class="bg-light text-muted">{{ key }}</th>
-                        <td class="fw-semibold text-dark">{{ val }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- TOTAL DESCRIPTION & SPECIFICATIONS SECTION -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-white">
+        <ul class="nav nav-pills mb-4 border-bottom pb-3 gap-2" id="productDetailTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-pill fw-bold px-4" id="desc-tab" data-bs-toggle="pill" data-bs-target="#desc-content" type="button" role="tab">
+                    <i class="bi bi-file-text me-2"></i> Total Description
+                </button>
+            </li>
+            {% if product.specifications %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold px-4" id="specs-tab" data-bs-toggle="pill" data-bs-target="#specs-content" type="button" role="tab">
+                    <i class="bi bi-sliders me-2"></i> Technical Specifications
+                </button>
+            </li>
+            {% endif %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold px-4" id="box-tab" data-bs-toggle="pill" data-bs-target="#box-content" type="button" role="tab">
+                    <i class="bi bi-box-seam me-2"></i> What's in the Box & Warranty
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="productDetailTabsContent">
+            <!-- TAB 1: TOTAL DESCRIPTION -->
+            <div class="tab-pane fade show active" id="desc-content" role="tabpanel" aria-labelledby="desc-tab">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-dark mb-3">Product Overview & Features</h4>
+                        <p id="product-description" class="text-secondary lead fs-6 lh-lg mb-4">
+                            {{ product.description }}
+                        </p>
+
+                        <!-- Selected Color Variant Note Banner -->
+                        <div id="variant-desc-note" class="alert alert-primary border-primary-subtle rounded-3 py-3 px-3.5 mb-4 {% if not (product.variants and product.variants[0].description) %}d-none{% endif %}">
+                            <h6 class="fw-bold text-primary mb-1"><i class="bi bi-palette-fill me-2"></i> Selected Color Edition Note:</h6>
+                            <p class="mb-0 text-dark small" id="variant-desc-text">
+                                {{ product.variants[0].description if (product.variants and product.variants[0].description) else '' }}
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-stars text-warning me-2"></i> Key Highlights</h6>
+                            <ul class="list-unstyled mb-0 text-muted small lh-lg">
+                                <li><i class="bi bi-check2-circle text-success me-2"></i> Premium craftsmanship built with top-tier materials.</li>
+                                <li><i class="bi bi-check2-circle text-success me-2"></i> High performance designed for demanding professional & casual workflows.</li>
+                                <li><i class="bi bi-check2-circle text-success me-2"></i> Fully compatible with Indian power standards (220V/50Hz) and UPI ecosystem.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card bg-light border-0 rounded-4 p-3">
+                            <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-info-circle text-primary me-2"></i> Quick Specs Summary</h6>
+                            <ul class="list-group list-group-flush bg-transparent rounded-3">
+                                <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                                    <span class="text-muted small">Brand</span>
+                                    <span class="fw-bold text-dark small">{{ product.brand }}</span>
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                                    <span class="text-muted small">Category</span>
+                                    <span class="fw-bold text-dark small">{{ product.category.name }}</span>
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                                    <span class="text-muted small">Rating</span>
+                                    <span class="fw-bold text-dark small">{{ product.rating }} / 5.0</span>
+                                </li>
+                                <li class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                                    <span class="text-muted small">Available Colors</span>
+                                    <span class="fw-bold text-primary small">{{ product.variants|length if product.variants else 1 }} Options</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: TECHNICAL SPECIFICATIONS -->
+            {% if product.specifications %}
+            <div class="tab-pane fade" id="specs-content" role="tabpanel" aria-labelledby="specs-tab">
+                <h4 class="fw-bold text-dark mb-3">Full Technical Specifications</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle border rounded-3 overflow-hidden">
+                        <tbody>
+                            {% for key, val in product.specifications.items() %}
+                            <tr>
+                                <th style="width: 30%;" class="bg-light text-muted fw-bold px-4 py-3">{{ key }}</th>
+                                <td class="fw-semibold text-dark px-4 py-3">{{ val }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- TAB 3: IN THE BOX & WARRANTY -->
+            <div class="tab-pane fade" id="box-content" role="tabpanel" aria-labelledby="box-tab">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-box-seam text-primary me-2"></i> Package Includes</h5>
+                            <ul class="list-unstyled mb-0 text-muted lh-lg small">
+                                <li><i class="bi bi-check-lg text-primary me-2"></i> 1x {{ product.title }}</li>
+                                <li><i class="bi bi-check-lg text-primary me-2"></i> 1x Standard USB Charging / Data Cable</li>
+                                <li><i class="bi bi-check-lg text-primary me-2"></i> 1x Quick Start Guide & Safety Manual</li>
+                                <li><i class="bi bi-check-lg text-primary me-2"></i> 1x ElectroHub Official Warranty Card</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 bg-light">
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check text-success me-2"></i> Warranty & Service</h5>
+                            <p class="text-muted small mb-2">
+                                Comes with <strong>2 Years Brand Warranty</strong> covering manufacturing defects.
+                            </p>
+                            <p class="text-muted small mb-0">
+                                Contact ElectroHub support at <strong>support@electrohub.com</strong> or call toll-free for doorstep repair and hassle-free replacements.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Related Products -->
+    <!-- RELATED PRODUCTS -->
     {% if related_products %}
     <div class="mb-5">
-        <h4 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-info me-2"></i> Related Products</h4>
+        <h4 class="fw-bold mb-3 text-dark"><i class="bi bi-arrow-repeat text-info me-2"></i> You Might Also Like</h4>
         <div class="row g-4">
             {% for rel in related_products %}
             <div class="col-lg-3 col-md-6">
-                <div class="product-card">
-                    <div class="product-img-wrapper">
-                        <img src="{{ rel.thumbnail }}" alt="{{ rel.title }}">
+                <div class="product-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="product-img-wrapper position-relative text-center p-3 bg-light" style="height: 180px;">
+                        <img src="{{ rel.thumbnail }}" alt="{{ rel.title }}" class="img-fluid h-100" style="object-fit: contain;">
                     </div>
-                    <div class="product-card-body">
-                        <div class="product-brand">{{ rel.brand }}</div>
-                        <a href="{{ url_for('shop.product_detail', slug=rel.slug) }}" class="product-title">{{ rel.title }}</a>
-                        <div class="price-box">
-                            <span class="current-price">₹{{ "%.2f"|format(rel.price) }}</span>
+                    <div class="card-body d-flex flex-column p-3">
+                        <span class="badge bg-secondary text-uppercase align-self-start mb-1" style="font-size: 0.65rem;">{{ rel.brand }}</span>
+                        <a href="{{ url_for('shop.product_detail', slug=rel.slug) }}" class="fw-bold text-dark text-decoration-none mb-2 text-truncate" title="{{ rel.title }}">{{ rel.title }}</a>
+                        <div class="mt-auto d-flex align-items-center justify-content-between">
+                            <span class="fw-bold text-primary fs-5">₹{{ "%.2f"|format(rel.price) }}</span>
+                            <a href="{{ url_for('shop.product_detail', slug=rel.slug) }}" class="btn btn-outline-primary btn-sm rounded-circle p-2" title="View Product">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -173,53 +338,107 @@ document.addEventListener('DOMContentLoaded', function () {
     const variantDescNote = document.getElementById('variant-desc-note');
     const variantDescText = document.getElementById('variant-desc-text');
     const swatches = document.querySelectorAll('.color-swatch-btn');
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    const galleryCountLabel = document.getElementById('gallery-count');
 
-    swatches.forEach(button => {
-        button.addEventListener('click', function () {
-            swatches.forEach(b => {
-                b.classList.remove('active', 'border-primary', 'bg-light', 'fw-bold');
-            });
-            this.classList.add('active', 'border-primary', 'bg-light', 'fw-bold');
+    if (galleryCountLabel && thumbnails.length) {
+        galleryCountLabel.textContent = thumbnails.length;
+    }
 
+    // Function to set main image with smooth fade
+    function updateMainImage(imgUrl) {
+        if (!mainImg || !imgUrl) return;
+        mainImg.style.opacity = '0.3';
+        setTimeout(() => {
+            mainImg.src = imgUrl;
+            mainImg.style.opacity = '1';
+        }, 150);
+    }
+
+    // Function to highlight active thumbnail
+    function setActiveThumbnail(targetImgUrl) {
+        thumbnails.forEach(thumb => {
+            const thumbUrl = thumb.getAttribute('data-img-url');
+            if (thumbUrl === targetImgUrl) {
+                thumb.classList.add('active', 'border-primary', 'shadow-sm');
+                thumb.classList.remove('border-secondary-subtle');
+            } else {
+                thumb.classList.remove('active', 'border-primary', 'shadow-sm');
+                thumb.classList.add('border-secondary-subtle');
+            }
+        });
+    }
+
+    // Thumbnail Click Handler
+    thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function () {
+            const imgUrl = this.getAttribute('data-img-url');
             const variantId = this.getAttribute('data-variant-id');
-            const colorName = this.getAttribute('data-color-name');
-            const imgUrl = this.getAttribute('data-image-url');
-            const price = this.getAttribute('data-price');
-            const stock = this.getAttribute('data-stock');
-            const desc = this.getAttribute('data-desc');
 
-            if (mainImg && imgUrl) {
-                mainImg.style.opacity = '0.5';
-                setTimeout(() => {
-                    mainImg.src = imgUrl;
-                    mainImg.style.opacity = '1';
-                }, 150);
-            }
+            updateMainImage(imgUrl);
+            setActiveThumbnail(imgUrl);
 
-            if (displayPrice && price) {
-                displayPrice.textContent = `₹${price}`;
-            }
-
-            if (stockCount && stock) {
-                stockCount.textContent = stock;
-            }
-
-            if (selectedColorLabel && colorName) {
-                selectedColorLabel.textContent = colorName;
-            }
-
-            if (selectedVariantInput && variantId) {
-                selectedVariantInput.value = variantId;
-            }
-
-            if (variantDescNote && variantDescText) {
-                if (desc && desc.trim() !== '') {
-                    variantDescText.textContent = desc;
-                    variantDescNote.classList.remove('d-none');
-                } else {
-                    variantDescNote.classList.add('d-none');
+            // If thumbnail corresponds to a variant, trigger click on that swatch
+            if (variantId) {
+                const matchingSwatch = document.querySelector(`.color-swatch-btn[data-variant-id="${variantId}"]`);
+                if (matchingSwatch) {
+                    activateSwatch(matchingSwatch, false); // false = don't double update image
                 }
             }
+        });
+    });
+
+    // Helper to activate a color swatch
+    function activateSwatch(button, changeImage = true) {
+        swatches.forEach(b => {
+            b.classList.remove('active', 'border-primary', 'bg-primary-subtle', 'fw-bold', 'shadow-sm');
+            b.classList.add('bg-light', 'text-dark');
+        });
+        button.classList.add('active', 'border-primary', 'bg-primary-subtle', 'fw-bold', 'shadow-sm');
+        button.classList.remove('bg-light');
+
+        const variantId = button.getAttribute('data-variant-id');
+        const colorName = button.getAttribute('data-color-name');
+        const imgUrl = button.getAttribute('data-image-url');
+        const price = button.getAttribute('data-price');
+        const stock = button.getAttribute('data-stock');
+        const desc = button.getAttribute('data-desc');
+
+        if (changeImage && imgUrl) {
+            updateMainImage(imgUrl);
+            setActiveThumbnail(imgUrl);
+        }
+
+        if (displayPrice && price) {
+            displayPrice.textContent = `₹${price}`;
+        }
+
+        if (stockCount && stock) {
+            stockCount.textContent = stock;
+        }
+
+        if (selectedColorLabel && colorName) {
+            selectedColorLabel.textContent = colorName;
+        }
+
+        if (selectedVariantInput && variantId) {
+            selectedVariantInput.value = variantId;
+        }
+
+        if (variantDescNote && variantDescText) {
+            if (desc && desc.trim() !== '') {
+                variantDescText.textContent = desc;
+                variantDescNote.classList.remove('d-none');
+            } else {
+                variantDescNote.classList.add('d-none');
+            }
+        }
+    }
+
+    // Swatch Click Handler
+    swatches.forEach(button => {
+        button.addEventListener('click', function () {
+            activateSwatch(this, true);
         });
     });
 });
