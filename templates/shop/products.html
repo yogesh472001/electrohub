@@ -117,7 +117,7 @@
             {% if products %}
             <div class="row g-4">
                 {% for product in products %}
-                <div class="col-md-4 col-sm-6">
+                <div class="col-md-4 col-6">
                     <div class="product-card">
                         {% if product.discount_percent > 0 %}
                         <span class="product-badge bg-danger text-white">-{{ product.discount_percent }}% OFF</span>
