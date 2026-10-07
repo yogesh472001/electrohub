@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="container py-4">
-    <h3 class="fw-bold mb-4"><i class="bi bi-credit-card-2-front text-primary me-2"></i> Secure Checkout</h3>
+    <h3 class="fw-bold mb-4"><i class="bi bi-shield-lock-fill text-success me-2"></i> Secure Online Checkout</h3>
 
     <form action="{{ url_for('cart.place_order') }}" method="POST">
         <div class="row g-4">
-            <!-- Shipping & Payment Form -->
+            <!-- Shipping & Online Payment Form -->
             <div class="col-lg-7">
                 <!-- Shipping Address Card -->
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
@@ -24,56 +24,114 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small">Phone Number *</label>
-                            <input type="tel" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+1 555-019-2834" required>
+                            <input type="tel" name="phone" class="form-control" value="{{ current_user.phone or '' }}" placeholder="+91 98765 43210" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small">City *</label>
-                            <input type="text" name="city" class="form-control" placeholder="San Francisco" required>
+                            <input type="text" name="city" class="form-control" placeholder="Mumbai / Delhi / Bengaluru" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold small">Shipping Address *</label>
-                            <textarea name="shipping_address" class="form-control" rows="2" placeholder="123 Tech Street, Suite 400" required>{{ current_user.address or '' }}</textarea>
+                            <textarea name="shipping_address" class="form-control" rows="2" placeholder="House/Flat No., Building, Street Area" required>{{ current_user.address or '' }}</textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold small">Zip / Postal Code *</label>
-                            <input type="text" name="zip_code" class="form-control" placeholder="94107" required>
+                            <label class="form-label fw-semibold small">Zip / Pincode *</label>
+                            <input type="text" name="zip_code" class="form-control" placeholder="400001" required>
                         </div>
                     </div>
                 </div>
 
-                <!-- Payment Method Selection Card -->
+                <!-- Online Payment Methods Selection Card (COD Removed, GPay/Paytm/PhonePe added) -->
                 <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-wallet2 text-primary me-2"></i> Payment Method</h5>
-                    <div class="vstack gap-3">
-                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-credit-card-2-front text-primary me-2"></i> Online Payment Method</h5>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 rounded-pill small">
+                            <i class="bi bi-shield-check me-1"></i> 100% Encrypted & Secure
+                        </span>
+                    </div>
+
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="bi bi-info-circle-fill me-1"></i> We accept <strong>Online Payments only</strong> (GPay, Paytm, PhonePe, Cards & Net Banking). Cash on Delivery is disabled.
+                    </div>
+
+                    <div class="vstack gap-3 mb-4">
+                        <!-- Google Pay -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
                             <div>
-                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="card" value="Credit/Debit Card" checked>
-                                <label class="form-check-label fw-semibold" for="card">Credit or Debit Card</label>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="gpay" value="Google Pay (GPay)" checked>
+                                <label class="form-check-label fw-bold text-dark" for="gpay">
+                                    Google Pay (GPay)
+                                </label>
                             </div>
-                            <div>
-                                <i class="bi bi-credit-card-fill fs-4 text-primary"></i>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="badge bg-light text-dark border font-monospace fw-extrabold px-2 py-1 fs-6">
+                                    <span class="text-primary">G</span><span class="text-danger">P</span><span class="text-warning">a</span><span class="text-success">y</span>
+                                </span>
                             </div>
                         </div>
 
-                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                        <!-- PhonePe -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
                             <div>
-                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="paypal" value="PayPal">
-                                <label class="form-check-label fw-semibold" for="paypal">PayPal Express</label>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="phonepe" value="PhonePe (UPI)">
+                                <label class="form-check-label fw-bold text-dark" for="phonepe">
+                                    PhonePe UPI
+                                </label>
                             </div>
                             <div>
-                                <i class="bi bi-paypal fs-4 text-info"></i>
+                                <span class="badge bg-purple text-white px-2 py-1 fw-bold fs-6" style="background-color: #5f259f;">
+                                    <i class="bi bi-phone-fill me-1"></i> PhonePe
+                                </span>
                             </div>
                         </div>
 
-                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between">
+                        <!-- Paytm -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
                             <div>
-                                <input class="form-check-input ms-0 me-2" type="radio" name="payment_method" id="cod" value="Cash on Delivery">
-                                <label class="form-check-label fw-semibold" for="cod">Cash on Delivery (COD)</label>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="paytm" value="Paytm Wallet / UPI">
+                                <label class="form-check-label fw-bold text-dark" for="paytm">
+                                    Paytm Wallet & UPI
+                                </label>
                             </div>
                             <div>
-                                <i class="bi bi-cash-stack fs-4 text-success"></i>
+                                <span class="badge bg-info text-dark font-monospace fw-bold px-2 py-1 fs-6">
+                                    <i class="bi bi-wallet2 me-1"></i> Paytm
+                                </span>
                             </div>
                         </div>
+
+                        <!-- Credit/Debit Card -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
+                            <div>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="card" value="Credit/Debit Card">
+                                <label class="form-check-label fw-bold text-dark" for="card">
+                                    Credit / Debit Card (Visa, Mastercard, RuPay)
+                                </label>
+                            </div>
+                            <div>
+                                <i class="bi bi-credit-card-2-front-fill fs-4 text-primary"></i>
+                            </div>
+                        </div>
+
+                        <!-- Net Banking -->
+                        <div class="form-check p-3 border rounded-3 d-flex align-items-center justify-content-between payment-option-box">
+                            <div>
+                                <input class="form-check-input ms-0 me-2 payment-radio" type="radio" name="payment_method" id="netbanking" value="Net Banking">
+                                <label class="form-check-label fw-bold text-dark" for="netbanking">
+                                    Net Banking (All Major Indian Banks)
+                                </label>
+                            </div>
+                            <div>
+                                <i class="bi bi-bank fs-4 text-secondary"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Online Payment Input Details Box -->
+                    <div id="upi-details-box" class="p-3 bg-light border rounded-3 mb-2">
+                        <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-qr-code me-1"></i> UPI VPA / Mobile Number</label>
+                        <input type="text" name="upi_id" class="form-control" placeholder="yourname@okicici / 9876543210@paytm">
+                        <small class="text-muted mt-1 d-block">A payment request will be pushed directly to your UPI app.</small>
                     </div>
                 </div>
             </div>
@@ -116,12 +174,12 @@
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
-                        <span class="fw-bold fs-5">Total Pay</span>
+                        <span class="fw-bold fs-5">Total Online Payment</span>
                         <span class="fw-extrabold fs-4 text-primary">${{ "%.2f"|format(grand_total) }}</span>
                     </div>
 
                     <button type="submit" class="btn btn-success w-100 py-3 rounded-3 fw-bold text-uppercase shadow-sm fs-6">
-                        <i class="bi bi-lock-fill me-1"></i> Place Order Now
+                        <i class="bi bi-lock-fill me-1"></i> Pay Now & Complete Order
                     </button>
                 </div>
             </div>
