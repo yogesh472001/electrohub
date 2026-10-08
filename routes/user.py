@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db
 from models.order import Order
+from models.product import ReturnRequest
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 
@@ -40,7 +41,6 @@ def orders():
 def order_detail(order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
     
-    # Calculate step status for tracking timeline visualization
     statuses = ['Pending', 'Processing', 'Shipped', 'Delivered']
     current_step = 1
     if order.status in statuses:
@@ -49,3 +49,38 @@ def order_detail(order_id):
         current_step = -1
 
     return render_template('user/order_detail.html', order=order, current_step=current_step, statuses=statuses)
+
+@user_bp.route('/order/<int:order_id>/cancel', methods=['POST'])
+@login_required
+def cancel_order(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    if order.status in ['Pending', 'Processing']:
+        order.status = 'Cancelled'
+        db.session.commit()
+        flash(f'Order #{order.order_number} has been cancelled successfully.', 'info')
+    else:
+        flash('Order cannot be cancelled at this stage.', 'warning')
+    return redirect(url_for('user.order_detail', order_id=order.id))
+
+@user_bp.route('/order/<int:order_id>/request-return', methods=['POST'])
+@login_required
+def request_return(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    if order.status == 'Delivered':
+        reason = request.form.get('reason', '').strip()
+        refund_upi_id = request.form.get('refund_upi_id', '').strip()
+        
+        if not reason:
+            flash('Please specify a reason for return.', 'warning')
+        else:
+            existing = ReturnRequest.query.filter_by(order_id=order.id).first()
+            if existing:
+                flash('A return request has already been submitted for this order.', 'info')
+            else:
+                ret = ReturnRequest(order_id=order.id, user_id=current_user.id, reason=reason, refund_upi_id=refund_upi_id)
+                db.session.add(ret)
+                db.session.commit()
+                flash('Return & refund request submitted successfully! Our team will process it within 24 hours.', 'success')
+    else:
+        flash('Return request can only be submitted for delivered orders.', 'warning')
+    return redirect(url_for('user.order_detail', order_id=order.id))

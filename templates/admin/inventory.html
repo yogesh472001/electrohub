@@ -1,0 +1,97 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Centralized Omnichannel Inventory | Admin YAMORA Retails{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-box-seam-fill text-primary me-2"></i> Centralized Omnichannel Inventory</h3>
+        <p class="text-muted small mb-0">Automatic synchronization between Physical Retail Shop stock & Online Store inventory.</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btn-trigger-sync">
+        <i class="bi bi-arrow-repeat me-1"></i> Sync POS Inventory Now
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+            <div class="fs-2 text-primary"><i class="bi bi-globe"></i></div>
+            <div>
+                <h6 class="fw-bold mb-0">Online Store Stock</h6>
+                <span class="fs-5 fw-extrabold text-dark">{{ products|sum(attribute='stock') }} Units</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+            <div class="fs-2 text-success"><i class="bi bi-shop"></i></div>
+            <div>
+                <h6 class="fw-bold mb-0">Physical Shop Stock</h6>
+                <span class="fs-5 fw-extrabold text-dark">{{ products|sum(attribute='retail_shop_stock') }} Units</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center gap-3">
+            <div class="fs-2 text-info"><i class="bi bi-layers-fill"></i></div>
+            <div>
+                <h6 class="fw-bold mb-0">Total Combined Stock</h6>
+                <span class="fs-5 fw-extrabold text-info">{{ products|sum(attribute='stock') + products|sum(attribute='retail_shop_stock') }} Units</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th scope="col" class="ps-4 py-3">Product Title</th>
+                    <th scope="col" class="py-3">Category</th>
+                    <th scope="col" class="py-3 text-center">Online E-Commerce Stock</th>
+                    <th scope="col" class="py-3 text-center">Physical Store Stock</th>
+                    <th scope="col" class="py-3 text-center">Total Omnichannel Stock</th>
+                    <th scope="col" class="py-3 text-end pe-4">Sync Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ p.thumbnail }}" alt="{{ p.title }}" class="rounded-3" style="width: 45px; height: 45px; object-fit: contain;">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0 small">{{ p.title }}</h6>
+                                <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;">{{ p.brand }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ p.category.name }}</span></td>
+                    <td class="text-center fw-bold text-primary">{{ p.stock }} units</td>
+                    <td class="text-center fw-bold text-success">{{ p.retail_shop_stock or 0 }} units</td>
+                    <td class="text-center"><span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1.5 fs-6 rounded-pill fw-bold">{{ p.total_combined_stock }} units</span></td>
+                    <td class="text-end pe-4">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> Synchronized</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-trigger-sync').addEventListener('click', function() {
+    this.disabled = True;
+    this.innerHTML = '<i class="bi bi-arrow-repeat spin me-1"></i> Synchronizing...';
+    fetch('/api/inventory/sync', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            window.location.reload();
+        });
+});
+</script>
+{% endblock %}

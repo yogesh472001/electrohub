@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import current_user, login_required
 from models import db
 from models.product import Category, Product
@@ -67,7 +67,6 @@ def products():
     all_products = query.all()
     categories = Category.query.all()
     
-    # Get unique active brands for sidebar filter
     all_brands = db.session.query(Product.brand).filter_by(is_active=True).distinct().all()
     brands = sorted([b[0] for b in all_brands if b[0]])
 
@@ -98,6 +97,33 @@ def product_detail(slug):
         in_wishlist = WishlistItem.query.filter_by(user_id=current_user.id, product_id=product.id).first() is not None
 
     return render_template('shop/product_detail.html', product=product, related_products=related_products, in_wishlist=in_wishlist)
+
+@shop_bp.route('/compare')
+def compare():
+    compare_ids = session.get('compare_ids', [])
+    products = Product.query.filter(Product.id.in_(compare_ids)).all() if compare_ids else []
+    return render_template('shop/compare.html', compare_products=products)
+
+@shop_bp.route('/compare/add/<int:product_id>')
+def add_to_compare(product_id):
+    compare_ids = session.get('compare_ids', [])
+    if product_id not in compare_ids:
+        if len(compare_ids) >= 4:
+            flash('You can compare up to 4 products at once.', 'warning')
+        else:
+            compare_ids.append(product_id)
+            session['compare_ids'] = compare_ids
+            flash('Product added to comparison matrix!', 'success')
+    return redirect(url_for('shop.compare'))
+
+@shop_bp.route('/compare/remove/<int:product_id>')
+def remove_from_compare(product_id):
+    compare_ids = session.get('compare_ids', [])
+    if product_id in compare_ids:
+        compare_ids.remove(product_id)
+        session['compare_ids'] = compare_ids
+        flash('Product removed from comparison.', 'info')
+    return redirect(url_for('shop.compare'))
 
 @shop_bp.route('/wishlist')
 @login_required

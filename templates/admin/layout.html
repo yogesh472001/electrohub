@@ -22,13 +22,17 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 admin-sidebar p-3">
-                <a href="{{ url_for('admin.dashboard') }}" class="d-block text-white text-decoration-none fw-bold fs-4 mb-4 text-center">
-                    <i class="bi bi-cpu-fill text-info"></i> Electro<span class="text-info">Hub</span>
+                <a href="{{ url_for('admin.dashboard') }}" class="d-flex align-items-center justify-content-center gap-2 text-white text-decoration-none fw-bold fs-5 mb-4 py-2">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="rounded-3" style="width: 32px; height: 32px; object-fit: cover;">
+                    YAMORA<span class="text-info">Retails</span>
                 </a>
-                <hr class="border-secondary mb-4">
+                <hr class="border-secondary mb-3">
                 <nav class="nav flex-column">
                     <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin.inventory') }}" class="admin-nav-link {% if request.endpoint == 'admin.inventory' %}active{% endif %}">
+                        <i class="bi bi-arrow-repeat text-info"></i> Omnichannel Sync
                     </a>
                     <a href="{{ url_for('admin.products') }}" class="admin-nav-link {% if 'admin.products' in request.endpoint or 'product' in request.endpoint %}active{% endif %}">
                         <i class="bi bi-box"></i> Products & Stock
@@ -39,10 +43,16 @@
                     <a href="{{ url_for('admin.orders') }}" class="admin-nav-link {% if request.endpoint == 'admin.orders' %}active{% endif %}">
                         <i class="bi bi-cart-check"></i> Manage Orders
                     </a>
+                    <a href="{{ url_for('admin.coupons') }}" class="admin-nav-link {% if request.endpoint == 'admin.coupons' %}active{% endif %}">
+                        <i class="bi bi-ticket-perforated"></i> Coupons & Promos
+                    </a>
+                    <a href="{{ url_for('admin.returns') }}" class="admin-nav-link {% if request.endpoint == 'admin.returns' %}active{% endif %}">
+                        <i class="bi bi-arrow-return-left"></i> Returns & Refunds
+                    </a>
                     <a href="{{ url_for('admin.users') }}" class="admin-nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
                         <i class="bi bi-people"></i> Customers
                     </a>
-                    <hr class="border-secondary my-4">
+                    <hr class="border-secondary my-3">
                     <a href="{{ url_for('shop.index') }}" class="admin-nav-link text-warning">
                         <i class="bi bi-box-arrow-up-right"></i> View Live Store
                     </a>

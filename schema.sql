@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS users (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-
 -- 2. Categories Table
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -27,7 +26,7 @@ CREATE TABLE IF NOT EXISTS categories (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Products Table
+-- 3. Products Table (With Omnichannel Retail Shop Stock Synchronization)
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
@@ -38,6 +37,8 @@ CREATE TABLE IF NOT EXISTS products (
     original_price DECIMAL(10, 2) DEFAULT NULL,
     discount_percent INT DEFAULT 0,
     stock INT DEFAULT 10,
+    retail_shop_stock INT DEFAULT 15,
+    last_synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     rating DECIMAL(2, 1) DEFAULT 4.5,
     is_featured BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
@@ -116,4 +117,28 @@ CREATE TABLE IF NOT EXISTS order_items (
     thumbnail VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- 9. Coupons Table
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(30) NOT NULL UNIQUE,
+    discount_type VARCHAR(20) DEFAULT 'percent',
+    discount_value DECIMAL(10, 2) NOT NULL,
+    min_order_amount DECIMAL(10, 2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. Return Requests Table
+CREATE TABLE IF NOT EXISTS return_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    user_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    refund_upi_id VARCHAR(80) DEFAULT NULL,
+    status VARCHAR(30) DEFAULT 'Requested',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

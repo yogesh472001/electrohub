@@ -1,0 +1,78 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Coupons | Admin YAMORA Retails{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0"><i class="bi bi-ticket-perforated-fill text-primary me-2"></i> Promo Coupons & Discounts</h3>
+</div>
+
+<div class="row g-4">
+    <!-- Add Coupon Form -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h5 class="fw-bold mb-3">Create New Promo Coupon</h5>
+            <form action="{{ url_for('admin.coupons') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Coupon Code *</label>
+                    <input type="text" name="code" class="form-control font-monospace text-uppercase" placeholder="e.g. YAMORA10" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Discount Type</label>
+                    <select name="discount_type" class="form-select">
+                        <option value="percent">Percentage (%) OFF</option>
+                        <option value="fixed">Flat Amount (₹) OFF</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Discount Value *</label>
+                    <input type="number" step="0.01" name="discount_value" class="form-control" placeholder="10 or 500" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small">Min Order Amount (₹)</label>
+                    <input type="number" step="0.01" name="min_order_amount" class="form-control" placeholder="1000.00" value="0.0">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold">
+                    <i class="bi bi-plus-circle me-1"></i> Save Promo Coupon
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Coupons List Table -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-4 py-3">Code</th>
+                            <th scope="col" class="py-3">Type</th>
+                            <th scope="col" class="py-3">Discount Value</th>
+                            <th scope="col" class="py-3">Min Order</th>
+                            <th scope="col" class="py-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in coupons %}
+                        <tr>
+                            <td class="ps-4 fw-bold font-monospace text-primary fs-6">{{ c.code }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ c.discount_type.upper() }}</span></td>
+                            <td class="fw-bold">
+                                {% if c.discount_type == 'percent' %}{{ c.discount_value }}% OFF{% else %}₹{{ "%.2f"|format(c.discount_value) }} OFF{% endif %}
+                            </td>
+                            <td class="small text-muted">₹{{ "%.2f"|format(c.min_order_amount) }}</td>
+                            <td class="text-center">
+                                <form action="{{ url_for('admin.delete_coupon', coupon_id=c.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Delete"><i class="bi bi-trash fs-5"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

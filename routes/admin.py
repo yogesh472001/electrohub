@@ -8,7 +8,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from models import db
 from models.user import User
-from models.product import Category, Product, ProductVariant
+from models.product import Category, Product, ProductVariant, Coupon, ReturnRequest
 from models.order import Order
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -65,7 +65,6 @@ def process_variants(product, form, files):
 
         c_code = color_codes[i].strip() if i < len(color_codes) and color_codes[i].strip() else '#333333'
 
-        # Check if an uploaded file is provided for this variant
         uploaded_variant_url = None
         if i < len(variant_files):
             uploaded_variant_url = save_uploaded_file(variant_files[i])
@@ -142,6 +141,13 @@ def dashboard():
         recent_orders=recent_orders
     )
 
+# --- OMNICHANNEL INVENTORY MANAGEMENT ---
+@admin_bp.route('/inventory')
+@admin_required
+def inventory():
+    all_products = Product.query.order_by(Product.id.asc()).all()
+    return render_template('admin/inventory.html', products=all_products)
+
 # --- PRODUCT MANAGEMENT ---
 @admin_bp.route('/products')
 @admin_required
@@ -165,7 +171,6 @@ def add_product():
         description = request.form.get('description', '').strip()
         is_featured = True if request.form.get('is_featured') else False
 
-        # Main Photo File Upload or URL
         uploaded_thumb = save_uploaded_file(request.files.get('thumbnail_file'))
         thumbnail = uploaded_thumb or request.form.get('thumbnail', '').strip() or 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800'
 
@@ -197,7 +202,6 @@ def add_product():
         db.session.add(new_prod)
         db.session.commit()
 
-        # Save Color Variants & Uploaded Photos
         process_variants(new_prod, request.form, request.files)
 
         flash(f'Product "{title}" created successfully with photos!', 'success')
@@ -239,7 +243,6 @@ def edit_product(product_id):
 
         db.session.commit()
 
-        # Update Color Variants & Uploaded Photos
         process_variants(product, request.form, request.files)
 
         flash(f'Product "{product.title}" updated successfully with photos!', 'success')
@@ -308,6 +311,53 @@ def update_order_status(order_id):
         db.session.commit()
         flash(f'Order #{order.order_number} status changed to {new_status}.', 'success')
     return redirect(url_for('admin.orders'))
+
+# --- COUPONS MANAGEMENT ---
+@admin_bp.route('/coupons', methods=['GET', 'POST'])
+@admin_required
+def coupons():
+    if request.method == 'POST':
+        code = request.form.get('code', '').strip().upper()
+        discount_type = request.form.get('discount_type', 'percent')
+        discount_value = float(request.form.get('discount_value', 0.0))
+        min_order_amount = float(request.form.get('min_order_amount', 0.0))
+
+        if code:
+            coupon = Coupon(code=code, discount_type=discount_type, discount_value=discount_value, min_order_amount=min_order_amount)
+            db.session.add(coupon)
+            db.session.commit()
+            flash(f'Coupon "{code}" created successfully!', 'success')
+        return redirect(url_for('admin.coupons'))
+
+    all_coupons = Coupon.query.order_by(Coupon.created_at.desc()).all()
+    return render_template('admin/coupons.html', coupons=all_coupons)
+
+@admin_bp.route('/coupons/delete/<int:coupon_id>', methods=['POST'])
+@admin_required
+def delete_coupon(coupon_id):
+    c = Coupon.query.get_or_404(coupon_id)
+    db.session.delete(c)
+    db.session.commit()
+    flash(f'Coupon "{c.code}" deleted.', 'info')
+    return redirect(url_for('admin.coupons'))
+
+# --- RETURNS & REFUNDS MANAGEMENT ---
+@admin_bp.route('/returns')
+@admin_required
+def returns():
+    all_returns = ReturnRequest.query.order_by(ReturnRequest.created_at.desc()).all()
+    return render_template('admin/returns.html', return_requests=all_returns)
+
+@admin_bp.route('/returns/update-status/<int:return_id>', methods=['POST'])
+@admin_required
+def update_return_status(return_id):
+    ret = ReturnRequest.query.get_or_404(return_id)
+    new_status = request.form.get('status')
+    if new_status in ['Requested', 'Approved', 'Refunded', 'Rejected']:
+        ret.status = new_status
+        db.session.commit()
+        flash(f'Return request #{ret.id} status updated to {new_status}.', 'success')
+    return redirect(url_for('admin.returns'))
 
 # --- USER MANAGEMENT ---
 @admin_bp.route('/users')

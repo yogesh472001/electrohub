@@ -1,8 +1,8 @@
 import uuid
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, current_user
 from models import db
-from models.product import Product, ProductVariant
+from models.product import Product, ProductVariant, Coupon
 from models.cart import CartItem
 from models.order import Order, OrderItem
 
@@ -15,7 +15,17 @@ def view_cart():
     subtotal = sum(item.subtotal for item in cart_items)
     shipping = 0.0 if subtotal > 999 or subtotal == 0 else 99.0
     tax = round(subtotal * 0.18, 2) # GST 18%
-    grand_total = subtotal + shipping + tax
+
+    # Applied Coupon Logic
+    applied_coupon_code = session.get('applied_coupon_code')
+    applied_coupon = None
+    discount = 0.0
+    if applied_coupon_code:
+        applied_coupon = Coupon.query.filter_by(code=applied_coupon_code, is_active=True).first()
+        if applied_coupon:
+            discount = applied_coupon.calculate_discount(subtotal)
+
+    grand_total = max(0.0, subtotal + shipping + tax - discount)
 
     return render_template(
         'cart/cart.html',
@@ -23,8 +33,39 @@ def view_cart():
         subtotal=subtotal,
         shipping=shipping,
         tax=tax,
+        discount=discount,
+        applied_coupon=applied_coupon,
         grand_total=grand_total
     )
+
+@cart_bp.route('/apply-coupon', methods=['POST'])
+@login_required
+def apply_coupon():
+    code = request.form.get('coupon_code', '').strip().upper()
+    if not code:
+        flash('Please enter a coupon code.', 'warning')
+        return redirect(url_for('cart.view_cart'))
+
+    coupon = Coupon.query.filter_by(code=code, is_active=True).first()
+    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
+    subtotal = sum(item.subtotal for item in cart_items)
+
+    if not coupon:
+        flash(f'Invalid coupon code "{code}".', 'danger')
+    elif subtotal < coupon.min_order_amount:
+        flash(f'Coupon "{code}" requires a minimum order of ₹{coupon.min_order_amount:,.2f}.', 'warning')
+    else:
+        session['applied_coupon_code'] = coupon.code
+        flash(f'🎉 Coupon "{code}" applied successfully!', 'success')
+
+    return redirect(url_for('cart.view_cart'))
+
+@cart_bp.route('/remove-coupon', methods=['POST'])
+@login_required
+def remove_coupon():
+    session.pop('applied_coupon_code', None)
+    flash('Coupon removed.', 'info')
+    return redirect(url_for('cart.view_cart'))
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required
@@ -119,7 +160,16 @@ def checkout():
     subtotal = sum(item.subtotal for item in cart_items)
     shipping = 0.0 if subtotal > 999 else 99.0
     tax = round(subtotal * 0.18, 2)
-    grand_total = subtotal + shipping + tax
+
+    applied_coupon_code = session.get('applied_coupon_code')
+    applied_coupon = None
+    discount = 0.0
+    if applied_coupon_code:
+        applied_coupon = Coupon.query.filter_by(code=applied_coupon_code, is_active=True).first()
+        if applied_coupon:
+            discount = applied_coupon.calculate_discount(subtotal)
+
+    grand_total = max(0.0, subtotal + shipping + tax - discount)
 
     return render_template(
         'cart/checkout.html',
@@ -127,6 +177,8 @@ def checkout():
         subtotal=subtotal,
         shipping=shipping,
         tax=tax,
+        discount=discount,
+        applied_coupon=applied_coupon,
         grand_total=grand_total
     )
 
@@ -154,7 +206,15 @@ def place_order():
     subtotal = sum(item.subtotal for item in cart_items)
     shipping = 0.0 if subtotal > 999 else 99.0
     tax = round(subtotal * 0.18, 2)
-    grand_total = subtotal + shipping + tax
+
+    applied_coupon_code = session.get('applied_coupon_code')
+    discount = 0.0
+    if applied_coupon_code:
+        coupon = Coupon.query.filter_by(code=applied_coupon_code, is_active=True).first()
+        if coupon:
+            discount = coupon.calculate_discount(subtotal)
+
+    grand_total = max(0.0, subtotal + shipping + tax - discount)
 
     # Stock check
     for item in cart_items:
@@ -164,7 +224,7 @@ def place_order():
             return redirect(url_for('cart.view_cart'))
 
     # Generate order number
-    order_num = "EH-" + str(uuid.uuid4().hex[:8]).upper()
+    order_num = "YM-" + str(uuid.uuid4().hex[:8]).upper()
 
     order = Order(
         order_number=order_num,
@@ -198,8 +258,8 @@ def place_order():
         db.session.add(order_item)
 
     db.session.commit()
+    session.pop('applied_coupon_code', None)
 
-    # Determine specific payment gateway based on selected method
     gateway = 'phonepe'
     if 'Google Pay' in payment_method or 'GPay' in payment_method:
         gateway = 'gpay'
@@ -210,7 +270,6 @@ def place_order():
     elif 'Net Banking' in payment_method:
         gateway = 'netbanking'
 
-    # Redirect to corresponding dedicated gateway page
     return redirect(url_for('cart.payment_gateway', gateway=gateway, order_id=order.id, upi_id=upi_id))
 
 @cart_bp.route('/payment-gateway/<gateway>/<int:order_id>')
@@ -228,11 +287,8 @@ def payment_gateway(gateway, order_id):
 @login_required
 def payment_callback(order_id):
     order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
-    
-    # Process payment & update order status
     order.status = 'Processing'
-    
-    # Clear user's cart and deduct stock
+
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
     for item in cart_items:
         if item.variant:
@@ -244,3 +300,12 @@ def payment_callback(order_id):
     db.session.commit()
     flash(f'🎉 Payment of ₹{order.total_amount:,.2f} received via {order.payment_method}! Order #{order.order_number} is confirmed.', 'success')
     return redirect(url_for('user.order_detail', order_id=order.id))
+
+@cart_bp.route('/invoice/<int:order_id>')
+@login_required
+def invoice(order_id):
+    order = Order.query.filter_by(id=order_id).first_or_404()
+    if not current_user.is_admin() and order.user_id != current_user.id:
+        flash('Access denied.', 'danger')
+        return redirect(url_for('shop.index'))
+    return render_template('cart/invoice.html', order=order)

@@ -1,10 +1,10 @@
 import json
 from models import db
 from models.user import User
-from models.product import Category, Product, ProductVariant
+from models.product import Category, Product, ProductVariant, Coupon
 
 def seed_database():
-    """Seeds initial categories, products with INR prices & color variants, and default users."""
+    """Seeds initial categories, products with INR prices, color variants, coupons, and default users."""
     if User.query.first():
         return
 
@@ -31,6 +31,12 @@ def seed_database():
 
     db.session.add_all([admin, customer])
 
+    # Default Coupons
+    coupon1 = Coupon(code="YAMORA10", discount_type="percent", discount_value=10.0, min_order_amount=1000.0)
+    coupon2 = Coupon(code="FESTIVE500", discount_type="fixed", discount_value=500.0, min_order_amount=5000.0)
+    coupon3 = Coupon(code="FIRSTBUY", discount_type="percent", discount_value=15.0, min_order_amount=500.0)
+    db.session.add_all([coupon1, coupon2, coupon3])
+
     # Categories
     categories_data = [
         {"name": "Laptops", "slug": "laptops", "description": "High performance gaming & ultrabook laptops", "image_url": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80"},
@@ -50,7 +56,7 @@ def seed_database():
         db.session.flush()
         cat_map[cat.slug] = cat.id
 
-    # Products with Indian Rupee (₹) Pricing
+    # Products with Indian Rupee (₹) Pricing & Omnichannel Retail Stock
     p1 = Product(
         title='Apple MacBook Pro 16" M3 Max',
         slug="apple-macbook-pro-16-m3-max",
@@ -60,6 +66,7 @@ def seed_database():
         original_price=269900.00,
         discount_percent=7,
         stock=15,
+        retail_shop_stock=25,
         rating=4.9,
         is_featured=True,
         thumbnail="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
@@ -98,6 +105,7 @@ def seed_database():
         original_price=144900.00,
         discount_percent=7,
         stock=20,
+        retail_shop_stock=30,
         rating=4.9,
         is_featured=True,
         thumbnail="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80",
@@ -145,6 +153,7 @@ def seed_database():
         original_price=34990.00,
         discount_percent=14,
         stock=30,
+        retail_shop_stock=40,
         rating=4.8,
         is_featured=True,
         thumbnail="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
@@ -192,6 +201,7 @@ def seed_database():
         original_price=10995.00,
         discount_percent=18,
         stock=40,
+        retail_shop_stock=50,
         rating=4.9,
         is_featured=True,
         thumbnail="https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
@@ -209,6 +219,7 @@ def seed_database():
         original_price=99990.00,
         discount_percent=15,
         stock=6,
+        retail_shop_stock=10,
         rating=4.9,
         is_featured=True,
         thumbnail="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80",
@@ -218,4 +229,4 @@ def seed_database():
     db.session.add(p5)
 
     db.session.commit()
-    print("Database successfully seeded with INR (₹) prices!")
+    print("Database successfully seeded with Coupons & Omnichannel Retail Inventory!")

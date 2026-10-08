@@ -23,12 +23,14 @@ def create_app():
     from routes.cart import cart_bp
     from routes.user import user_bp
     from routes.admin import admin_bp
+    from routes.api import api_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(shop_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(api_bp)
 
     # Global Template Context Processor (Cart & Wishlist counts)
     @app.context_processor

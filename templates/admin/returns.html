@@ -1,0 +1,57 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Returns & Refunds | Admin YAMORA Retails{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0"><i class="bi bi-arrow-return-left text-danger me-2"></i> Returns & Refund Requests</h3>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th scope="col" class="ps-4 py-3">Return #</th>
+                    <th scope="col" class="py-3">Order Number</th>
+                    <th scope="col" class="py-3">Customer</th>
+                    <th scope="col" class="py-3">Reason</th>
+                    <th scope="col" class="py-3">UPI ID</th>
+                    <th scope="col" class="py-3">Status</th>
+                    <th scope="col" class="py-3 text-end pe-4">Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ret in return_requests %}
+                <tr>
+                    <td class="ps-4 fw-bold">#RET-{{ ret.id }}</td>
+                    <td><a href="{{ url_for('admin.orders') }}" class="fw-bold text-decoration-none">#{{ ret.order.order_number }}</a></td>
+                    <td>{{ ret.user.full_name }}<br><small class="text-muted">{{ ret.user.phone }}</small></td>
+                    <td class="small text-secondary">{{ ret.reason }}</td>
+                    <td class="small font-monospace fw-bold text-dark">{{ ret.refund_upi_id or 'N/A' }}</td>
+                    <td>
+                        <span class="badge {% if ret.status == 'Refunded' %}bg-success{% elif ret.status == 'Approved' %}bg-primary{% elif ret.status == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %} px-3 py-1.5 rounded-pill fw-bold">
+                            {{ ret.status }}
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <form action="{{ url_for('admin.update_return_status', return_id=ret.id) }}" method="POST" class="d-inline-block">
+                            <select name="status" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()" style="width: auto;">
+                                <option value="Requested" {% if ret.status == 'Requested' %}selected{% endif %}>Requested</option>
+                                <option value="Approved" {% if ret.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                <option value="Refunded" {% if ret.status == 'Refunded' %}selected{% endif %}>Refunded</option>
+                                <option value="Rejected" {% if ret.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No return/refund requests submitted yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

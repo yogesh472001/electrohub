@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Products | YAMORA Retails{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-arrow-left-right text-primary me-2"></i> Product Comparison Matrix</h3>
+            <p class="text-muted small mb-0">Compare specifications, prices, ratings, and features side-by-side.</p>
+        </div>
+        <a href="{{ url_for('shop.products') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+            <i class="bi bi-plus-circle me-1"></i> Add More Products
+        </a>
+    </div>
+
+    {% if compare_products %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 20%;" class="text-start ps-4">Product Feature</th>
+                        {% for p in compare_products %}
+                        <th style="width: {{ 80 / (compare_products|length) }}%;">
+                            <div class="p-2">
+                                <a href="{{ url_for('shop.remove_from_compare', product_id=p.id) }}" class="btn btn-sm btn-light rounded-circle float-end text-muted" title="Remove"><i class="bi bi-x-lg"></i></a>
+                                <img src="{{ p.thumbnail }}" alt="{{ p.title }}" class="img-fluid rounded-3 mb-2" style="height: 120px; object-fit: contain;">
+                                <h6 class="fw-bold text-dark mb-1 text-truncate">{{ p.title }}</h6>
+                                <span class="badge bg-secondary text-uppercase mb-2">{{ p.brand }}</span>
+                                <div class="fs-5 fw-extrabold text-primary mb-2">₹{{ "%.2f"|format(p.price) }}</div>
+                                <form action="{{ url_for('cart.add_to_cart', product_id=p.id) }}" method="POST" class="ajax-add-to-cart">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold w-100">
+                                        <i class="bi bi-bag-plus me-1"></i> Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="text-start ps-4 bg-light text-muted">Category</th>
+                        {% for p in compare_products %}
+                        <td class="fw-semibold text-dark">{{ p.category.name }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="text-start ps-4 bg-light text-muted">Customer Rating</th>
+                        {% for p in compare_products %}
+                        <td class="text-warning fw-bold"><i class="bi bi-star-fill me-1"></i> {{ p.rating }} / 5.0</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="text-start ps-4 bg-light text-muted">Stock Availability</th>
+                        {% for p in compare_products %}
+                        <td>
+                            {% if p.stock > 0 %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill"><i class="bi bi-check-circle me-1"></i> In Stock ({{ p.stock }})</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill">Out of Stock</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="text-start ps-4 bg-light text-muted">Available Colors</th>
+                        {% for p in compare_products %}
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                {% for v in p.variants %}
+                                <span class="rounded-circle border d-inline-block" style="width: 18px; height: 18px; background-color: {{ v.color_code }};" title="{{ v.color_name }}"></span>
+                                {% else %}
+                                <span class="small text-muted">Default Color</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="text-start ps-4 bg-light text-muted">Warranty Period</th>
+                        {% for p in compare_products %}
+                        <td class="small fw-medium text-dark"><i class="bi bi-shield-check text-success me-1"></i> 2 Years Official Warranty</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-4 border shadow-sm mb-5">
+        <i class="bi bi-arrow-left-right fs-1 text-muted"></i>
+        <h4 class="fw-bold mt-3">No Products Added to Comparison</h4>
+        <p class="text-muted small mb-4">Click "Compare" on any product card in the catalog to build your comparison matrix.</p>
+        <a href="{{ url_for('shop.products') }}" class="btn btn-primary rounded-pill px-4 fw-bold">Browse Tech Catalog</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
